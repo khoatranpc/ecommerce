@@ -43,6 +43,14 @@ const Register = () => {
           animate={{ scale: 1 }}
           transition={{ delay: 0.2 }}
         >
+          <div className="relative mb-6">
+            <div className="absolute -inset-1 bg-blue-100/50 rounded-full blur-xl"></div>
+            <img
+              src="/static/logo-short.png"
+              alt="Logo"
+              className="mx-auto h-14 w-auto relative"
+            />
+          </div>
           <Title level={2} className="!text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
             Đăng ký tài khoản
           </Title>

@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Ecommerce",
   description: "Cung cấp hệ thống, nền tảng thương mại điện tử, phù hợp cho các cửa hàng kinh doanh",
+  icons:'/static/logo-short.png'
 };
 
 export default function RootLayout({

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Image, Button, Typography, Tooltip, Badge, Dropdown } from 'antd';
 import { UserOutlined, BellOutlined, QuestionCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
+import ChatBot from '../components/ChatBot';
 const { Header, Content, Footer } = Layout;
 const { Text, Link } = Typography;
 
@@ -112,6 +113,7 @@ const EcommerceSystemLayout = (props: Props) => {
 
             <Content>
                 {props.children}
+                <ChatBot />
             </Content>
 
             <Footer className="bg-gray-50 py-8">
