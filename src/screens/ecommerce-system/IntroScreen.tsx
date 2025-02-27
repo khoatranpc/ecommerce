@@ -1,44 +1,17 @@
 "use client";
 import React from "react";
-import { Button, Card, Typography, Image } from "antd";
+import { Button, Typography, Image } from "antd";
 import {
-  ShoppingCartOutlined,
-  RocketOutlined,
-  SecurityScanOutlined,
-  GlobalOutlined,
   PlayCircleOutlined,
 } from "@ant-design/icons";
 import { motion } from "framer-motion";
+import Loading from "@/src/components/Loading";
 
 const { Title, Paragraph } = Typography;
 
 const IntroScreen = () => {
-  const features = [
-    {
-      icon: <ShoppingCartOutlined className="text-4xl text-blue-600" />,
-      title: "Quản lý bán hàng toàn diện",
-      description:
-        "Giải pháp quản lý đơn hàng, kho hàng và khách hàng một cách hiệu quả",
-    },
-    {
-      icon: <RocketOutlined className="text-4xl text-blue-600" />,
-      title: "Tối ưu hiệu suất",
-      description:
-        "Tăng tốc quy trình bán hàng và cải thiện trải nghiệm người dùng",
-    },
-    {
-      icon: <SecurityScanOutlined className="text-4xl text-blue-600" />,
-      title: "Bảo mật tối đa",
-      description: "Đảm bảo an toàn thông tin và giao dịch cho doanh nghiệp",
-    },
-    {
-      icon: <GlobalOutlined className="text-4xl text-blue-600" />,
-      title: "Tích hợp đa nền tảng",
-      description: "Kết nối và đồng bộ dữ liệu trên nhiều kênh bán hàng",
-    },
-  ];
 
-  const containerVariants = {
+  const ariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -64,12 +37,12 @@ const IntroScreen = () => {
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-gray-100 to-white"></div>
         <div className="absolute top-0 right-0 w-1/3 h-full bg-blue-50"></div>
 
-        <div className="container mx-auto px-4 py-16">
+        <div className="mx-auto px-4 py-16">
           <motion.div
             className="grid grid-cols-12 gap-8 items-center relative z-10"
             initial="hidden"
             animate="visible"
-            variants={containerVariants}
+            variants={ariants}
           >
             <div className="col-span-12 lg:col-span-5 space-y-8">
               <motion.div variants={itemVariants}>
@@ -160,7 +133,7 @@ const IntroScreen = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <div className="container mx-auto px-4">
+        <div className="mx-auto px-4">
           <motion.div
             className="text-center max-w-3xl mx-auto mb-16"
             initial={{ y: 20, opacity: 0 }}
@@ -240,7 +213,7 @@ const IntroScreen = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <div className="container mx-auto px-4">
+        <div className="mx-auto px-4">
           <motion.div
             className="text-center max-w-3xl mx-auto mb-16"
             initial={{ y: 20, opacity: 0 }}
@@ -323,8 +296,6 @@ const IntroScreen = () => {
           </div>
         </div>
       </motion.div>
-      {/* ... Why Choose Us section ends ... */}
-
       <motion.div
         className="py-24 bg-gradient-to-b from-white to-blue-50/30"
         initial={{ opacity: 0 }}
@@ -332,7 +303,7 @@ const IntroScreen = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <div className="container mx-auto px-4">
+        <div className="mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ x: -50, opacity: 0 }}
@@ -413,8 +384,6 @@ const IntroScreen = () => {
           </div>
         </div>
       </motion.div>
-
-      {/* ... Products section starts ... */}
       < motion.div
         className="py-16 bg-white"
         initial={{ opacity: 0 }}
@@ -422,7 +391,7 @@ const IntroScreen = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <div className="container mx-auto px-4 text-center">
+        <div className="mx-auto px-4 text-center">
           <Title level={2} className="mb-6">
             Sẵn sàng để bắt đầu?
           </Title>

@@ -1,11 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Layout, Image, Button, Typography, Tooltip, Badge, Dropdown } from 'antd';
 import { UserOutlined, BellOutlined, QuestionCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import ChatBot from '../components/ChatBot';
 const { Header, Content, Footer } = Layout;
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 interface Props {
     children: React.ReactNode;
@@ -21,11 +22,11 @@ const EcommerceSystemLayout = (props: Props) => {
     }, []);
 
     const menuItems = [
-        { label: 'Trang chủ', href: '#', tooltip: 'Quay về trang chủ' },
-        { label: 'Tính năng', href: '#features', tooltip: 'Khám phá tính năng' },
-        { label: 'Giải pháp', href: '#solutions', tooltip: 'Giải pháp cho doanh nghiệp' },
-        { label: 'Bảng giá', href: '#pricing', tooltip: 'Xem các gói dịch vụ' },
-        { label: 'Liên hệ', href: '#contact', tooltip: 'Kết nối với chúng tôi' },
+        { label: 'Trang chủ', href: '/', tooltip: 'Quay về trang chủ' },
+        { label: 'Tính năng', href: '/feature', tooltip: 'Khám phá tính năng' },
+        { label: 'Giải pháp', href: '/solutions', tooltip: 'Giải pháp cho doanh nghiệp' },
+        { label: 'Bảng giá', href: '/pricing', tooltip: 'Xem các gói dịch vụ' },
+        { label: 'Liên hệ', href: '/contact', tooltip: 'Kết nối với chúng tôi' },
     ];
 
     return (
@@ -35,7 +36,9 @@ const EcommerceSystemLayout = (props: Props) => {
                     ${'!bg-white/95 backdrop-blur-md shadow-sm'}`}
             >
                 <div className="flex items-center gap-12">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" onClick={() => {
+                        router.push('/');
+                    }}>
                         <Image
                             src="/static/logo-short.png"
                             alt="Logo"
@@ -43,7 +46,7 @@ const EcommerceSystemLayout = (props: Props) => {
                             width={30}
                             className="h-8 w-auto object-contain cursor-pointer hover:scale-105 transition-transform"
                         />
-                        <Text strong className="text-lg hidden sm:block">ECommerce Solution</Text>
+                        <h1 className="text-lg font-bold hidden sm:block">ECommerce Solution</h1>
                     </div>
                     <nav className="hidden xl:flex items-center space-x-10">
                         {menuItems.map((item, index) => (
@@ -112,8 +115,10 @@ const EcommerceSystemLayout = (props: Props) => {
             </Header>
 
             <Content>
-                {props.children}
-                <ChatBot />
+                <div className='container m-auto'>
+                    {props.children}
+                    <ChatBot />
+                </div>
             </Content>
 
             <Footer className="bg-gray-50 py-8">
