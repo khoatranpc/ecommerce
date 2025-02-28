@@ -15,15 +15,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { ItemType } from "antd/es/menu/interface";
 import { useCurrentUser } from "../utils/hooks";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = ({ children }: ComponentProps) => {
   const currentUser = useCurrentUser();
-  const router = useRouter();
   if (!currentUser.data?.getCurrentUser) {
-    router.push("/");
+    return redirect('/')
   }
   const [collapsed, setCollapsed] = useState(false);
   const {
