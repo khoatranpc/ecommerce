@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider } from "antd";
+import dynamic from "next/dynamic";
 import "./globals.scss";
 
 const geistSans = Geist({
@@ -16,10 +17,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ecommerce",
-  description: "Cung cấp hệ thống, nền tảng thương mại điện tử, phù hợp cho các cửa hàng kinh doanh",
-  icons:'/static/logo-short.png'
+  description:
+    "Cung cấp hệ thống, nền tảng thương mại điện tử, phù hợp cho các cửa hàng kinh doanh",
+  icons: "/static/logo-short.png",
 };
-
+const StoreProvider = dynamic(() => import("@/src/store/StoreProvider"));
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,11 +38,11 @@ export default function RootLayout({
             theme={{
               token: {
                 fontSize: 10,
-                colorPrimary: '#F37F2C'
-              }
+                colorPrimary: "#F37F2C",
+              },
             }}
           >
-            {children}
+            <StoreProvider>{children}</StoreProvider>
           </ConfigProvider>
         </AntdRegistry>
       </body>
