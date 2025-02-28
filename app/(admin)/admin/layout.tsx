@@ -1,8 +1,7 @@
 import React from "react";
-import { ComponentProps } from "@/src/types";
 import AdminLayout from "@/src/layouts/AdminLayout";
 
-const layout = (props: ComponentProps) => {
+const layout = (props: { children: React.ReactNode }) => {
   return <AdminLayout>{props.children}</AdminLayout>;
 };
 
