@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { Layout, Menu, Button, theme, Avatar } from "antd";
 import {
   MenuFoldOutlined,
@@ -22,7 +22,8 @@ const { Header, Sider, Content } = Layout;
 const AdminLayout = ({ children }: ComponentProps) => {
   const currentUser = useCurrentUser();
   if (!currentUser.data?.getCurrentUser) {
-    return redirect('/')
+    window.localStorage.setItem("callBackUrl", window.location.href);
+    return redirect("/");
   }
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -44,7 +45,7 @@ const AdminLayout = ({ children }: ComponentProps) => {
       icon: <UserOutlined />,
       label: (
         <Link href="/admin/shops" className="!text-black font-bold">
-          Khách hàng
+          Shop
         </Link>
       ),
       children: [
@@ -141,6 +142,10 @@ const AdminLayout = ({ children }: ComponentProps) => {
                 icon={<LogoutOutlined />}
                 danger
                 className="hover:bg-red-50"
+                onClick={() => {
+                  localStorage.removeItem("access_token");
+                  redirect("/");
+                }}
               >
                 Đăng xuất
               </Button>

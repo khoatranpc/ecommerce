@@ -24,6 +24,7 @@ import {
   EyeOutlined,
 } from "@ant-design/icons";
 import type { TableProps } from "antd";
+import { useRouter } from "next/navigation";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -43,7 +44,7 @@ const ListShop = () => {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [planFilter, setPlanFilter] = useState<string[]>([]);
-
+  const router = useRouter();
   // Mock data
   const data: ShopData[] = Array.from({ length: 100 }, (_, i) => ({
     key: i.toString(),
@@ -156,7 +157,9 @@ const ListShop = () => {
       render: (_, record) => (
         <Space>
           <Tooltip title="Xem chi tiết">
-            <Button type="text" icon={<EyeOutlined />} />
+            <Button type="text" icon={<EyeOutlined />} onClick={()=>{
+              router.push('/admin/shops/1');
+            }}/>
           </Tooltip>
         </Space>
       ),
