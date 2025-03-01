@@ -1,30 +1,55 @@
-'use client';
-import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { Input, Button, Typography, DatePicker, message } from 'antd';
-import { UserOutlined, MailOutlined, PhoneOutlined, HomeOutlined } from '@ant-design/icons';
-import { motion } from 'framer-motion';
-import TextArea from 'antd/es/input/TextArea';
+"use client";
+import React from "react";
+import { useForm, Controller } from "react-hook-form";
+import { Input, Button, Typography, DatePicker, message, Alert } from "antd";
+import {
+  UserOutlined,
+  MailOutlined,
+  HomeOutlined,
+  PhoneOutlined,
+  CheckCircleFilled,
+  CloseOutlined,
+  CloseCircleFilled,
+} from "@ant-design/icons";
+import { motion } from "framer-motion";
+import TextArea from "antd/es/input/TextArea";
+import { IObj } from "@/src/types";
+import { useUserRegister } from "@/src/utils/hooks";
+import { queryUserRegister } from "@/src/utils/graphql-queries";
 
 const { Title, Text } = Typography;
 
 interface RegisterFormInputs {
-  fullName: string;
+  name: string;
   email: string;
-  phone: string;
-  birthDate: Date;
+  phoneNumber: string;
+  dob: Date;
   address: string;
   password: string;
   confirmPassword: string;
 }
 
 const Register = () => {
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormInputs>();
-  const password = watch('password');
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormInputs>();
+  const password = watch("password");
+
+  const userRegister = useUserRegister();
 
   const onSubmit = (data: RegisterFormInputs) => {
-    console.log('Success:', data);
-    message.success('Đăng ký thành công!');
+    const getPayloadRegister: IObj = data;
+    delete getPayloadRegister.confirmPassword;
+    getPayloadRegister.dob = new Date(data.dob).getTime();
+    userRegister.query({
+      query: queryUserRegister,
+      variables: {
+        input: getPayloadRegister,
+      },
+    });
   };
 
   return (
@@ -51,18 +76,23 @@ const Register = () => {
               className="mx-auto h-14 w-auto relative"
             />
           </div>
-          <Title level={2} className="!text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+          <Title
+            level={2}
+            className="!text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
+          >
             Đăng ký tài khoản
           </Title>
-          <p className="text-gray-600">Tạo tài khoản để trải nghiệm dịch vụ của chúng tôi</p>
+          <p className="text-gray-600">
+            Tạo tài khoản để trải nghiệm dịch vụ của chúng tôi
+          </p>
         </motion.div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Controller
-              name="fullName"
+              name="name"
               control={control}
-              rules={{ required: 'Vui lòng nhập họ tên!' }}
+              rules={{ required: "Vui lòng nhập họ tên!" }}
               render={({ field }) => (
                 <div>
                   <Input
@@ -70,11 +100,13 @@ const Register = () => {
                     prefix={<UserOutlined className="text-gray-400" />}
                     placeholder="Họ và tên"
                     size="large"
-                    status={errors.fullName ? 'error' : ''}
+                    status={errors.name ? "error" : ""}
                     className="rounded-lg"
                   />
-                  {errors.fullName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.name.message}
+                    </p>
                   )}
                 </div>
               )}
@@ -84,11 +116,11 @@ const Register = () => {
               name="email"
               control={control}
               rules={{
-                required: 'Vui lòng nhập email!',
+                required: "Vui lòng nhập email!",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Email không hợp lệ!'
-                }
+                  message: "Email không hợp lệ!",
+                },
               }}
               render={({ field }) => (
                 <div>
@@ -97,25 +129,27 @@ const Register = () => {
                     prefix={<MailOutlined className="text-gray-400" />}
                     placeholder="Email"
                     size="large"
-                    status={errors.email ? 'error' : ''}
+                    status={errors.email ? "error" : ""}
                     className="rounded-lg"
                   />
                   {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.email.message}
+                    </p>
                   )}
                 </div>
               )}
             />
 
             <Controller
-              name="phone"
+              name="phoneNumber"
               control={control}
               rules={{
-                required: 'Vui lòng nhập số điện thoại!',
+                required: "Vui lòng nhập số điện thoại!",
                 pattern: {
                   value: /^[0-9]{10}$/,
-                  message: 'Số điện thoại không hợp lệ!'
-                }
+                  message: "Số điện thoại không hợp lệ!",
+                },
               }}
               render={({ field }) => (
                 <div>
@@ -124,20 +158,22 @@ const Register = () => {
                     prefix={<PhoneOutlined className="text-gray-400" />}
                     placeholder="Số điện thoại"
                     size="large"
-                    status={errors.phone ? 'error' : ''}
+                    status={errors.phoneNumber ? "error" : ""}
                     className="rounded-lg"
                   />
-                  {errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                  {errors.phoneNumber && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.phoneNumber.message}
+                    </p>
                   )}
                 </div>
               )}
             />
 
             <Controller
-              name="birthDate"
+              name="dob"
               control={control}
-              rules={{ required: 'Vui lòng chọn ngày sinh!' }}
+              rules={{ required: "Vui lòng chọn ngày sinh!" }}
               render={({ field }) => (
                 <div>
                   <DatePicker
@@ -145,11 +181,13 @@ const Register = () => {
                     placeholder="Ngày sinh"
                     size="large"
                     className="w-full rounded-lg"
-                    status={errors.birthDate ? 'error' : ''}
+                    status={errors.dob ? "error" : ""}
                     format="DD/MM/YYYY"
                   />
-                  {errors.birthDate && (
-                    <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>
+                  {errors.dob && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.dob.message}
+                    </p>
                   )}
                 </div>
               )}
@@ -159,18 +197,20 @@ const Register = () => {
           <Controller
             name="address"
             control={control}
-            rules={{ required: 'Vui lòng nhập địa chỉ!' }}
+            rules={{ required: "Vui lòng nhập địa chỉ!" }}
             render={({ field }) => (
               <div>
                 <TextArea
                   {...field}
                   placeholder="Địa chỉ"
-                  status={errors.address ? 'error' : ''}
+                  status={errors.address ? "error" : ""}
                   className="rounded-lg"
                   rows={3}
                 />
                 {errors.address && (
-                  <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.address.message}
+                  </p>
                 )}
               </div>
             )}
@@ -181,11 +221,11 @@ const Register = () => {
               name="password"
               control={control}
               rules={{
-                required: 'Vui lòng nhập mật khẩu!',
+                required: "Vui lòng nhập mật khẩu!",
                 minLength: {
                   value: 6,
-                  message: 'Mật khẩu phải có ít nhất 6 ký tự!'
-                }
+                  message: "Mật khẩu phải có ít nhất 6 ký tự!",
+                },
               }}
               render={({ field }) => (
                 <div>
@@ -193,11 +233,13 @@ const Register = () => {
                     {...field}
                     placeholder="Mật khẩu"
                     size="large"
-                    status={errors.password ? 'error' : ''}
+                    status={errors.password ? "error" : ""}
                     className="rounded-lg"
                   />
                   {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.password.message}
+                    </p>
                   )}
                 </div>
               )}
@@ -207,8 +249,9 @@ const Register = () => {
               name="confirmPassword"
               control={control}
               rules={{
-                required: 'Vui lòng xác nhận mật khẩu!',
-                validate: value => value === password || 'Mật khẩu không khớp!'
+                required: "Vui lòng xác nhận mật khẩu!",
+                validate: (value) =>
+                  value === password || "Mật khẩu không khớp!",
               }}
               render={({ field }) => (
                 <div>
@@ -216,25 +259,59 @@ const Register = () => {
                     {...field}
                     placeholder="Xác nhận mật khẩu"
                     size="large"
-                    status={errors.confirmPassword ? 'error' : ''}
+                    status={errors.confirmPassword ? "error" : ""}
                     className="rounded-lg"
                   />
                   {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.confirmPassword.message}
+                    </p>
                   )}
                 </div>
               )}
             />
           </div>
-
-          <motion.div
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
+          {userRegister.isFetched && (
+            <Alert
+              className="!mb-4"
+              description={
+                <p className="text-sm">
+                  {userRegister.isFetched && userRegister.isSuccess ? (
+                    <CheckCircleFilled
+                      style={{
+                        color: "var(--primary)",
+                      }}
+                      className="mr-2"
+                    />
+                  ) : (
+                    <CloseCircleFilled
+                      style={{
+                        color: "red",
+                      }}
+                      className="mr-2"
+                    />
+                  )}
+                  {userRegister.isFetched && userRegister.isSuccess
+                    ? "Đăng ký tài khoản thành công!"
+                    : `Đăng ký thất bại! ${
+                        (userRegister.error?.message as string) ?? ""
+                      }`}
+                </p>
+              }
+              type={
+                userRegister.isFetched && userRegister.isSuccess
+                  ? "success"
+                  : "error"
+              }
+            />
+          )}
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
             <Button
               type="primary"
               htmlType="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 h-12 text-lg rounded-lg"
+              loading={userRegister.isPending}
+              disabled={userRegister.isFetched && userRegister.isSuccess}
             >
               Đăng ký
             </Button>
@@ -242,7 +319,7 @@ const Register = () => {
 
           <div className="text-center">
             <p className="text-gray-600">
-              Đã có tài khoản?{' '}
+              Đã có tài khoản?{" "}
               <motion.a
                 href="/login"
                 className="text-blue-600 hover:text-blue-700 font-medium"

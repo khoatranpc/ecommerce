@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import Loading from "@/src/components/Loading";
 import { queryGetCurrentUser } from "@/src/utils/graphql-queries";
 import { useCurrentUser } from "@/src/utils/hooks";
+import { Role } from "../types/enum";
 
 export default function CheckAuth() {
   const currentUser = useCurrentUser();
@@ -18,7 +19,7 @@ export default function CheckAuth() {
       const access_token = localStorage.getItem("access_token");
       const callBackUrl = localStorage.getItem("callBackUrl");
       if (!access_token) redirect("/introduction");
-      if (!currentUser.data) {
+      if (!currentUser.data?.getCurrentUser) {
         currentUser.query(
           {
             query: queryGetCurrentUser,
@@ -35,13 +36,19 @@ export default function CheckAuth() {
               router.push("/login");
             }
             if (dataSuccess) {
-              // if(dataSuccess.)
-              router.push(callBackUrl as string);
+              console.log(dataSuccess)
+              if (dataSuccess.getCurrentUser.role === Role.shop) {
+                router.push("/shop-management");
+              } else {
+                if (dataSuccess.getCurrentUser.role === Role.admin) {
+                  router.push("/admin");
+                }
+              }
             }
           }
         );
       }
     }
-  }, [isClient]);
+  }, [isClient, currentUser.data]);
   return <Loading isScreen />;
 }

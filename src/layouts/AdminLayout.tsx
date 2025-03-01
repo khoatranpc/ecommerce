@@ -1,5 +1,5 @@
 "use client";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useState } from "react";
 import { Layout, Menu, Button, theme, Avatar } from "antd";
 import {
   MenuFoldOutlined,
@@ -14,17 +14,14 @@ import { ComponentProps } from "../types";
 import Image from "next/image";
 import Link from "next/link";
 import { ItemType } from "antd/es/menu/interface";
-import { useCurrentUser } from "../utils/hooks";
+import { useCheckCurrentRoleUser, useCurrentUser } from "../utils/hooks";
 import { redirect } from "next/navigation";
+import { Role } from "../types/enum";
 
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = ({ children }: ComponentProps) => {
-  const currentUser = useCurrentUser();
-  if (!currentUser.data?.getCurrentUser) {
-    window.localStorage.setItem("callBackUrl", window.location.href);
-    return redirect("/");
-  }
+  useCheckCurrentRoleUser(Role.admin);
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },

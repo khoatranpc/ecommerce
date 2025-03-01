@@ -24,3 +24,21 @@ export const queryGetCurrentUser = `#graphql
         }
     }
 `;
+
+export const queryUserRegister = `#graphql
+    mutation Mutation($input: UserRegisterInput) {
+        userRegister(input: $input){
+            _id
+            name
+            email
+            password
+            dob
+            phoneNumber
+            address
+            createdAt
+            updatedAt
+            status
+            role
+        }
+    }
+`;

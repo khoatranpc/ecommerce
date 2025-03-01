@@ -9,4 +9,7 @@ const verifyAccount = createSliceReducer("userLogin", [queryVerifyAccount]);
 export const queryGetCurrentUser = createQueryThunk("queryGetCurrentUser");
 const currentUser = createSliceReducer("currentUser", [queryGetCurrentUser]);
 
-export { verifyAccount, currentUser };
+export const queryUserRegister = createQueryThunk("queryUserRegister");
+const userRegister = createSliceReducer("userRegister", [queryUserRegister]);
+
+export { verifyAccount, currentUser, userRegister };
