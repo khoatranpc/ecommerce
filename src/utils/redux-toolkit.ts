@@ -2,10 +2,21 @@ import { AsyncThunk, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { initDataReducer } from "./init";
 import createQueryAxios from "./queryAxios";
 import { IObj, IPayloadGraphql } from "../types";
+import { AxiosRequestConfig, Method } from "axios";
 
-export const createQueryThunk = (name: string) => {
+export const createQueryThunk = (
+  name: string,
+  urlRestApi?: string,
+  method?: Method,
+  config?: AxiosRequestConfig<IPayloadGraphql>
+) => {
   return createAsyncThunk(`${name}/fetch`, async (payload) => {
-    return createQueryAxios(payload as unknown as IPayloadGraphql)();
+    return createQueryAxios(
+      payload as unknown as IPayloadGraphql,
+      urlRestApi,
+      method,
+      config
+    )();
   });
 };
 const createSliceReducer = (

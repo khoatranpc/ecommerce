@@ -1,11 +1,13 @@
-'use client';
+"use client";
+import dynamic from "next/dynamic";
 import React from "react";
-import ShopManagementLayout from "@/src/layouts/ShopManagementLayout";
+const ShopManagementLayout = dynamic(
+  () => import("@/src/layouts/ShopManagementLayout"),
+  {
+    ssr: false,
+  }
+);
 
 export default function Layout(props: { children: React.ReactNode }) {
-  return (
-    <ShopManagementLayout>
-      {props.children}
-    </ShopManagementLayout>
-  );
+  return <ShopManagementLayout>{props.children}</ShopManagementLayout>;
 }

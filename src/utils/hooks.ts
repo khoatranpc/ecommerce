@@ -1,3 +1,4 @@
+import { clearUpload, queryUpload, upload } from "./../store/reducers/file";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import { IPayloadGraphql, IReducerStore } from "../types";
@@ -8,19 +9,25 @@ import {
 } from "../store/reducers/user";
 import { redirect } from "next/navigation";
 import { Role } from "../types/enum";
+import {
+  queryCreateShopInfo,
+  queryShopDetailInfoByOwnerId,
+} from "../store/reducers/shop";
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
     payload?: IPayloadGraphql,
     callback?: (dataSuccess: any, error: any) => void
   ) => any;
+  clear?: () => void;
 }
 const createHook = (
   nameState: keyof RootState,
   queryFnc: (params: {
     payload?: IPayloadGraphql;
     callback?: (dataSuccess: any, error: any) => void;
-  }) => any
+  }) => any,
+  clearFnc?: Function
 ) => {
   return (): TypeReturnHook => {
     const userLoggedIn = useSelector(
@@ -41,6 +48,11 @@ const createHook = (
     return {
       ...userLoggedIn,
       query,
+      clear: () => {
+        if (clearFnc) {
+          dispatch(clearFnc());
+        }
+      },
     };
   };
 };
@@ -48,7 +60,7 @@ const createHook = (
 export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
   const currentUser = useCurrentUser();
   if (!currentUser.data?.getCurrentUser) {
-    window.localStorage.setItem("callBackUrl", window.location.href);
+    localStorage?.setItem("callBackUrl", window.location.href);
     return redirect("/");
   } else {
     if (
@@ -64,3 +76,14 @@ export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
 export const useVerifyAccount = createHook("verifyAccount", queryVerifyAccount);
 export const useCurrentUser = createHook("currentUser", queryGetCurrentUser);
 export const useUserRegister = createHook("userRegister", queryUserRegister);
+export const useGetShopDetailByOwnerId = createHook(
+  "shopDetailInfo",
+  queryShopDetailInfoByOwnerId
+);
+
+export const useUpload = createHook("upload", queryUpload, clearUpload);
+
+export const useCreateShopInfo = createHook(
+  "createShopInfo",
+  queryCreateShopInfo
+);

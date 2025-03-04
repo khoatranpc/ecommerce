@@ -48,6 +48,9 @@ const ShopManagementLayout = (props: { children: React.ReactNode }) => {
               key: "dashboard",
               icon: <DashboardOutlined />,
               label: "Dashboard",
+              onClick() {
+                router.push("/shop-management");
+              },
             },
             {
               key: "products",
@@ -68,6 +71,9 @@ const ShopManagementLayout = (props: { children: React.ReactNode }) => {
               key: "shop",
               icon: <ShopOutlined />,
               label: "Cửa hàng",
+              onClick() {
+                router.push("/shop-management/my-shop");
+              },
             },
           ]}
         />
