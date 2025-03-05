@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider } from "antd";
 import dynamic from "next/dynamic";
+import Loading from "@/src/components/Loading";
 import "./globals.scss";
 
 const geistSans = Geist({
@@ -35,6 +36,9 @@ export default function RootLayout({
         <AntdRegistry>
           <ConfigProvider
             componentSize="small"
+            spin={{
+              indicator: <Loading />,
+            }}
             theme={{
               token: {
                 fontSize: 10,

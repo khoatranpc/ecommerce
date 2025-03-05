@@ -21,3 +21,8 @@ export interface IPayloadGraphql {
     input: IObj;
   };
 }
+
+export interface IQueryPaginate {
+  page: number;
+  limit: number;
+}

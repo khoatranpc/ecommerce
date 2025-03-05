@@ -153,3 +153,55 @@ export const queryGetShopInfo = `#graphql
         }
     }
 `;
+
+export const queryGetCategories = (fieldsQuery?: string) => {
+  return `#graphql
+    query GetCategories($input: FilterCategoriesInput) { 
+        getCategories(input: $input) {
+            ${fieldsQuery ?? `
+            data {
+                _id
+                name
+                description
+                slug
+                status
+                imageUrl
+                createdAt
+                updatedAt
+                parentCategory {
+                    _id
+                    name
+                    description
+                    slug
+                    status
+                    imageUrl
+                }
+                shop {
+                    _id
+                    email
+                    facebook
+                    instagram
+                    logo
+                    name
+                    phone
+                    servicePackage
+                }
+                createdBy {
+                    email
+                    status
+                    role
+                    name
+                    _id
+                }
+            }
+            paginate {
+                page
+                total
+                pages
+                limit
+            }
+            `}
+        }
+    }
+  `;
+};

@@ -66,6 +66,9 @@ const ShopManagementLayout = (props: { children: React.ReactNode }) => {
               key: "categories",
               icon: <AppstoreOutlined />,
               label: "Danh mục",
+              onClick() {
+                router.push("/shop-management/categories");
+              },
             },
             {
               key: "shop",

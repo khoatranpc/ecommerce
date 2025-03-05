@@ -23,67 +23,12 @@ import {
   EyeOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
+import ProductCard, { IProduct } from "@/src/components/ProductCard";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { Meta } = Card;
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  status: "in_stock" | "out_of_stock" | "low_stock";
-  quantity: number;
-}
-
-const ProductCard = ({ product }: { product: Product }) => {
-  const statusConfig = {
-    in_stock: { color: "success", text: "Còn hàng" },
-    out_of_stock: { color: "error", text: "Hết hàng" },
-    low_stock: { color: "warning", text: "Sắp hết" },
-  };
-
-  return (
-    <Card
-      hoverable
-      className="h-[350px] flex flex-col"
-      cover={
-        <Image
-          src={product.image}
-          alt={product.name}
-          className="object-fit p-4 !h-[200px]"
-          preview={false}
-        />
-      }
-      actions={[
-        <Button key="view" type="text" icon={<EyeOutlined />} />,
-        <Button key="edit" type="text" icon={<EditOutlined />} />,
-        <Button key="delete" type="text" danger icon={<DeleteOutlined />} />,
-      ]}
-    >
-      <Meta
-        title={
-          <div className="font-medium text-base mb-2 line-clamp-1 tex-wrap">
-            {product.name}
-          </div>
-        }
-        description={
-          <Space direction="vertical" className="w-full">
-            <div className="flex items-center justify-between">
-              <Tag color="blue">{product.category}</Tag>
-              <Tag icon={<ShoppingOutlined />}>{product.quantity}</Tag>
-            </div>
-            <Text strong className="text-lg text-[var(--primary)]">
-              {product.price.toLocaleString()}₫
-            </Text>
-          </Space>
-        }
-      />
-    </Card>
-  );
-};
 
 const ListProduct = () => {
   const [searchText, setSearchText] = useState("");
@@ -91,7 +36,7 @@ const ListProduct = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Mock data
-  const products: Product[] = Array.from({ length: 50 }, (_, i) => ({
+  const products: IProduct[] = Array.from({ length: 50 }, (_, i) => ({
     id: i.toString(),
     name: `iPhone 14 Pro Max 256GB Chính hãng VN/A ${i + 1}`,
     price: Math.floor(Math.random() * 1000000) + 100000,

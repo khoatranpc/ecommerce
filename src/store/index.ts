@@ -3,6 +3,7 @@ import counter from "./reducers/example";
 import { verifyAccount, currentUser, userRegister } from "./reducers/user";
 import { createShopInfo, shopDetailInfo } from "./reducers/shop";
 import { upload } from "./reducers/file";
+import { categories } from "./reducers/category";
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     shopDetailInfo: shopDetailInfo.reducer,
     createShopInfo: createShopInfo.reducer,
     upload: upload.reducer,
+    categories: categories.reducer,
   },
 });
 

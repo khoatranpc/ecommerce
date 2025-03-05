@@ -1,18 +1,20 @@
-import { clearUpload, queryUpload, upload } from "./../store/reducers/file";
+import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { clearUpload, queryUpload } from "./../store/reducers/file";
+import { redirect } from "next/navigation";
 import { AppDispatch, RootState } from "../store";
-import { IPayloadGraphql, IReducerStore } from "../types";
+import { IObj, IPayloadGraphql, IReducerStore } from "../types";
 import {
   queryGetCurrentUser,
   queryUserRegister,
   queryVerifyAccount,
 } from "../store/reducers/user";
-import { redirect } from "next/navigation";
 import { Role } from "../types/enum";
 import {
   queryCreateShopInfo,
   queryShopDetailInfoByOwnerId,
 } from "../store/reducers/shop";
+import { queryGetCategories } from "../store/reducers/category";
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
@@ -30,7 +32,7 @@ const createHook = (
   clearFnc?: Function
 ) => {
   return (): TypeReturnHook => {
-    const userLoggedIn = useSelector(
+    const state = useSelector(
       (state: RootState) => state[nameState]
     ) as IReducerStore;
     const dispatch = useDispatch<AppDispatch>();
@@ -46,7 +48,7 @@ const createHook = (
       );
     };
     return {
-      ...userLoggedIn,
+      ...state,
       query,
       clear: () => {
         if (clearFnc) {
@@ -87,3 +89,5 @@ export const useCreateShopInfo = createHook(
   "createShopInfo",
   queryCreateShopInfo
 );
+
+export const useGetCategories = createHook("categories", queryGetCategories);

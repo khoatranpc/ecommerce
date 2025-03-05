@@ -31,14 +31,6 @@ const WelcomeShop = () => {
   const getShopInfo = shopInfo.data?.getShopByOwnerId as IObj;
   const currentUser = useCurrentUser();
   const router = useRouter();
-  // Mock data - replace with actual data from your backend
-  const hasShopInfo = false; // Toggle this to see different views
-  const shopData = {
-    name: "Shop Name",
-    totalOrders: 150,
-    totalCustomers: 89,
-    totalRevenue: 12500000,
-  };
   useEffect(() => {
     if (currentUser.data.getCurrentUser) {
       if (!shopInfo.data?.getShopByOwnerId && !shopInfo.isFetched) {
@@ -113,7 +105,7 @@ const WelcomeShop = () => {
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="relative w-24 h-24 rounded-full overflow-hidden">
             <Image
-              src="/static/shop-avatar.png"
+              src={getShopInfo.logo ?? "/static/logo-short.png"}
               alt="Shop Avatar"
               fill
               className="object-cover"
@@ -121,7 +113,7 @@ const WelcomeShop = () => {
           </div>
           <div className="text-center md:text-left">
             <Title level={2} className="">
-              Chào mừng trở lại, {shopData.name}!
+              Chào mừng trở lại, {getShopInfo?.name}!
             </Title>
             <Text type="secondary">
               Hãy xem những cập nhật mới nhất của cửa hàng bạn nhé
@@ -135,7 +127,7 @@ const WelcomeShop = () => {
           <Card>
             <Statistic
               title="Tổng đơn hàng"
-              value={shopData.totalOrders}
+              value={0}
               prefix={<ShoppingCartOutlined />}
               valueStyle={{ color: "var(--primary)" }}
             />
@@ -145,7 +137,7 @@ const WelcomeShop = () => {
           <Card>
             <Statistic
               title="Khách hàng"
-              value={shopData.totalCustomers}
+              value={0}
               prefix={<UserOutlined />}
               valueStyle={{ color: "var(--primary)" }}
             />
@@ -155,7 +147,7 @@ const WelcomeShop = () => {
           <Card>
             <Statistic
               title="Doanh thu"
-              value={shopData.totalRevenue}
+              value={0}
               prefix={<DollarOutlined />}
               suffix="₫"
               valueStyle={{ color: "var(--primary)" }}
