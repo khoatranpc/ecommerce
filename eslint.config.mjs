@@ -20,7 +20,8 @@ const eslintConfig = [
       '@typescript-eslint/no-explicit-any': 'off',
       'react-hooks/exhaustive-deps': "off",
       '@typescript-eslint/consistent-type-imports': 'off',
-      'react-hooks/rules-of-hooks': 'off'
+      'react-hooks/rules-of-hooks': 'off',
+      "@typescript-eslint/no-unsafe-function-type": 'off'
     },
     plugins: {
       '@typescript-eslint': eslintPluginTs,

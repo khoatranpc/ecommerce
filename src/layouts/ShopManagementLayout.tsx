@@ -13,7 +13,11 @@ import UserComponent from "../components/UserComponent";
 import { useCheckCurrentRoleUser } from "../utils/hooks";
 import { Role } from "../types/enum";
 import { useRouter } from "next/navigation";
+interface Window {
+  localStorage: Storage;
+}
 
+declare const localStorage: Storage;
 const { Header, Sider, Content } = Layout;
 
 const ShopManagementLayout = (props: { children: React.ReactNode }) => {
@@ -102,8 +106,10 @@ const ShopManagementLayout = (props: { children: React.ReactNode }) => {
                 key: "1",
                 label: "Đăng xuất",
                 onClick() {
-                  localStorage.removeItem("access_token");
-                  window.location.assign("/");
+                  if (typeof window !== "undefined") {
+                    localStorage.removeItem("access_token");
+                    window.location.assign("/");
+                  }
                 },
               },
             ]}

@@ -1,5 +1,9 @@
+"use client";
+import dynamic from "next/dynamic";
 import React from "react";
-import AdminLayout from "@/src/layouts/AdminLayout";
+const AdminLayout = dynamic(() => import("@/src/layouts/AdminLayout"), {
+  ssr: false,
+});
 
 const layout = (props: { children: React.ReactNode }) => {
   return <AdminLayout>{props.children}</AdminLayout>;

@@ -15,6 +15,7 @@ import {
   queryShopDetailInfoByOwnerId,
 } from "../store/reducers/shop";
 import { queryGetCategories } from "../store/reducers/category";
+import { removeLocalStorage, setLocalStorage } from ".";
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
@@ -62,14 +63,14 @@ const createHook = (
 export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
   const currentUser = useCurrentUser();
   if (!currentUser.data?.getCurrentUser) {
-    localStorage?.setItem("callBackUrl", window.location.href);
+    setLocalStorage("callBackUrl", window.location.href);
     return redirect("/");
   } else {
     if (
       currentUser.data!.getCurrentUser &&
       currentUser.data!.getCurrentUser.role !== roleForCheck
     ) {
-      window.localStorage.removeItem("callBackUrl");
+      removeLocalStorage("callBackUrl");
       return redirect("/");
     }
   }
