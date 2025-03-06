@@ -205,3 +205,30 @@ export const queryGetCategories = (fieldsQuery?: string) => {
     }
   `;
 };
+
+export const queryCreateCategory = `#graphql
+    mutation CreateCategory ($input: CreateCategoryInput) {
+        createCategory(input: $input) {
+            _id
+            name
+            description
+            slug
+            parentCategory {
+                _id
+            }
+            status
+            imageUrl
+            createdBy {
+                _id
+            }
+            updatedBy {
+                _id
+            }
+            shop {
+                _id
+            }
+            createdAt
+            updatedAt
+        }
+    }
+`;

@@ -13,6 +13,7 @@ export interface IReducerStore<T = any> {
   isSuccess: boolean;
   isError: boolean;
   error: any;
+  payloadQuery: any;
 }
 
 export interface IPayloadGraphql {

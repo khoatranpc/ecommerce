@@ -24,6 +24,7 @@ import { IObj, IQueryPaginate } from "@/src/types";
 import { queryGetCategories } from "@/src/utils/graphql-queries";
 import EmptyData from "@/src/components/EmptyData";
 import FormCategory from "./FormCategory";
+import { ColumnType } from "antd/es/table";
 
 const { Title } = Typography;
 
@@ -65,29 +66,43 @@ const TableCategories = (props: TableCategoriesProps) => {
   const limit = searchParams.get("limit") ?? 10;
   const router = useRouter();
   const getCategories = categories.data?.getCategories?.data as IObj[];
-  const columns = useMemo(() => {
+  const columns = useMemo((): ColumnType[] => {
     return [
       {
-        title: "Tên danh mục",
+        title: "Danh mục",
         dataIndex: "name",
         key: "name",
+        render(value, record) {
+          return (
+            <p className="flex gap-2 items-center">
+              <img className="w-12 h-12" alt="Rỗng" src={record.imageUrl} />
+              <span>{value}</span>
+            </p>
+          );
+        },
+        width: 250,
       },
-      {
-        title: "Slug",
-        dataIndex: "slug",
-        key: "slug",
-      },
+      // {
+      //   title: "Slug",
+      //   dataIndex: "slug",
+      //   key: "slug",
+      // },
       {
         title: "Mô tả",
         dataIndex: "description",
         key: "description",
         ellipsis: true,
+        width: 300,
+        render(value) {
+          return <Tooltip title={value}>{value}</Tooltip>;
+        },
       },
       {
         title: "Số sản phẩm",
         dataIndex: "productsCount",
         key: "productsCount",
         render: (count: number) => <Tag color="blue">{count} sản phẩm</Tag>,
+        width: 100,
       },
       {
         title: "Trạng thái",
@@ -98,12 +113,14 @@ const TableCategories = (props: TableCategoriesProps) => {
             {status === "active" ? "Hoạt động" : "Không hoạt động"}
           </Tag>
         ),
+        width: 100,
       },
       {
         title: "Ngày tạo",
         dataIndex: "createdAt",
         key: "createdAt",
         render: (date: string) => new Date(date).toLocaleDateString("vi-VN"),
+        width: 100,
       },
       {
         title: "Thao tác",
@@ -127,6 +144,7 @@ const TableCategories = (props: TableCategoriesProps) => {
             </Tooltip>
           </Space>
         ),
+        width: 150,
       },
     ];
   }, []);
@@ -164,6 +182,7 @@ const TableCategories = (props: TableCategoriesProps) => {
           router.push(`?page=${page}&limit=${pageSize}`);
         },
       }}
+      scroll={{ x: true }}
     />
   );
 };
@@ -263,6 +282,7 @@ const ListCategory = () => {
         destroyOnClose
       >
         <FormCategory
+          handleRefresh={() => handleRefresh()}
           onCancel={() => {
             handleOpenModalFormCategory(false, "create", "");
           }}

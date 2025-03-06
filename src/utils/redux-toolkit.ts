@@ -36,9 +36,14 @@ const createSliceReducer = (
     },
     extraReducers(builder) {
       queriesThunk.map((query) => {
-        builder.addCase(query.pending, (state) => {
+        builder.addCase(query.pending, (state, action) => {
           state.isPending = true;
           state.isFetched = false;
+          const getPayloadQuery = {
+            query: action.meta.arg.query ?? "",
+            variables: action.meta.arg.variables ?? {},
+          };
+          state.payloadQuery = getPayloadQuery;
         });
         builder.addCase(query.fulfilled, (state, action) => {
           state.isPending = false;

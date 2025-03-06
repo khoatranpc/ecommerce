@@ -14,7 +14,11 @@ import {
   queryCreateShopInfo,
   queryShopDetailInfoByOwnerId,
 } from "../store/reducers/shop";
-import { queryGetCategories } from "../store/reducers/category";
+import {
+  createCreateCategory,
+  queryCreateCategory,
+  queryGetCategories,
+} from "../store/reducers/category";
 import { removeLocalStorage, setLocalStorage } from ".";
 
 export interface TypeReturnHook extends IReducerStore {
@@ -23,6 +27,7 @@ export interface TypeReturnHook extends IReducerStore {
     callback?: (dataSuccess: any, error: any) => void
   ) => any;
   clear?: () => void;
+  refresh?: () => void;
 }
 const createHook = (
   nameState: keyof RootState,
@@ -48,6 +53,10 @@ const createHook = (
         })
       );
     };
+    const refresh = () => {
+      const getPayloadQueried = state.payloadQuery;
+      dispatch(queryFnc(getPayloadQueried));
+    };
     return {
       ...state,
       query,
@@ -56,6 +65,7 @@ const createHook = (
           dispatch(clearFnc());
         }
       },
+      refresh,
     };
   };
 };
@@ -92,3 +102,8 @@ export const useCreateShopInfo = createHook(
 );
 
 export const useGetCategories = createHook("categories", queryGetCategories);
+export const useCreateCategory = createHook(
+  "createCategory",
+  queryCreateCategory,
+  createCreateCategory
+);

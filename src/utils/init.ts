@@ -7,4 +7,5 @@ export const initDataReducer: IReducerStore = {
   isFetched: false,
   isSuccess: false,
   isPending: false,
+  payloadQuery: null,
 };

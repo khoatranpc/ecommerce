@@ -141,7 +141,7 @@ const AdminLayout = ({ children }: ComponentProps) => {
                 className="hover:bg-red-50"
                 onClick={() => {
                   localStorage.removeItem("access_token");
-                  redirect("/");
+                  window.location.assign("/");
                 }}
               >
                 Đăng xuất

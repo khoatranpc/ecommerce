@@ -1,10 +1,17 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Form, Input, Button, Space, Typography, Radio } from "antd";
 import { SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import { mapStatusToString, Status } from "@/src/types/enum";
 import UploadImg from "@/src/components/Upload";
+import {
+  useCreateCategory,
+  useGetCategories,
+  useGetShopDetailByOwnerId,
+} from "@/src/utils/hooks";
+import { queryCreateCategory } from "@/src/utils/graphql-queries";
+import { toast } from "react-toastify";
 const { Title } = Typography;
 const { TextArea } = Input;
 
@@ -13,11 +20,12 @@ interface CategoryFormData {
   slug: string;
   description: string;
   status: Status;
-  imgUrl: string;
+  imageUrl: string;
 }
 
 interface FormCategoryProps {
   onCancel: () => void;
+  handleRefresh: () => void;
   initialValues?: Partial<CategoryFormData>;
   isEdit?: boolean;
 }
@@ -39,9 +47,12 @@ const FormCategory: React.FC<FormCategoryProps> = ({
       slug: initialValues?.slug || "",
       description: initialValues?.description || "",
       status: initialValues?.status ?? Status.active,
-      imgUrl: initialValues?.imgUrl ?? "",
+      imageUrl: initialValues?.imageUrl ?? "",
     },
   });
+  const createCategory = useCreateCategory();
+  const listCategory = useGetCategories();
+  const currentShop = useGetShopDetailByOwnerId();
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
@@ -53,9 +64,34 @@ const FormCategory: React.FC<FormCategoryProps> = ({
   };
   const onSubmit = (data: CategoryFormData) => {
     if (!isEdit) {
-      console.log(data);
+      createCategory.query(
+        {
+          query: queryCreateCategory,
+          variables: {
+            input: {
+              ...data,
+              shop: currentShop.data!.getShopByOwnerId?._id as string,
+            },
+          },
+        },
+        (dataSuccess, error) => {
+          if (dataSuccess) {
+            toast.success("Lưu danh mục thành công!");
+          }
+          if (error) {
+            toast.error(`Lưu thông tin thất bại! ${error.message ?? ""}`);
+          }
+        }
+      );
     }
   };
+  useEffect(() => {
+    if (createCategory.isSuccess && createCategory.isFetched) {
+      createCategory.clear?.();
+      listCategory.refresh?.();
+      onCancel();
+    }
+  }, [createCategory.isSuccess]);
   return (
     <div>
       <Title level={3} className="mb-6">
@@ -70,18 +106,18 @@ const FormCategory: React.FC<FormCategoryProps> = ({
         <Form.Item label="Ảnh đại diện danh mục" className="">
           <UploadImg
             defaultFileList={
-              getValues().imgUrl
+              getValues().imageUrl
                 ? [
                     {
-                      name: "imgUrl",
+                      name: "imageUrl",
                       uid: "1",
-                      url: getValues().imgUrl ?? "",
+                      url: getValues().imageUrl ?? "",
                     },
                   ]
                 : undefined
             }
             getListUrl={(listUrl) => {
-              setValue("imgUrl", listUrl?.[0] ?? getValues().imgUrl ?? "");
+              setValue("imageUrl", listUrl?.[0] ?? getValues().imageUrl ?? "");
             }}
           />
         </Form.Item>
