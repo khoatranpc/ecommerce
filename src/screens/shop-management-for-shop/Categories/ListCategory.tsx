@@ -244,7 +244,7 @@ const ListCategory = () => {
     });
   };
   useEffect(() => {
-    if (getCurrentShop && !categories.isPending && !categories.data) {
+    if (getCurrentShop && !categories.isPending) {
       categories.query(
         mapQuery(getCurrentShop?._id as string, keyword, queryParams)
       );
