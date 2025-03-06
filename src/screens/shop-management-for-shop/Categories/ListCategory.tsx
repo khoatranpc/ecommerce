@@ -62,8 +62,14 @@ interface TableCategoriesProps {
 const TableCategories = (props: TableCategoriesProps) => {
   const categories = useGetCategories();
   const searchParams = useSearchParams();
-  const page = searchParams.get("page") ?? 1;
-  const limit = searchParams.get("limit") ?? 10;
+  const page =
+    searchParams.get("page") ??
+    categories.payloadQuery?.variables?.input?.paginate?.page ??
+    1;
+  const limit =
+    searchParams.get("limit") ??
+    categories.payloadQuery?.variables?.input?.paginate?.limit ??
+    10;
   const router = useRouter();
   const getCategories = categories.data?.getCategories?.data as IObj[];
   const columns = useMemo((): ColumnType[] => {
@@ -196,9 +202,14 @@ const ListCategory = () => {
   const currentShop = useGetShopDetailByOwnerId();
   const getCurrentShop = currentShop.data?.getShopByOwnerId as IObj;
   const searchParams = useSearchParams();
-  const page = searchParams.get("page") ?? 1;
-  const limit = searchParams.get("limit") ?? 10;
-  const router = useRouter();
+  const page =
+    searchParams.get("page") ??
+    categories.payloadQuery?.variables?.input?.paginate?.page ??
+    1;
+  const limit =
+    searchParams.get("limit") ??
+    categories.payloadQuery?.variables?.input?.paginate?.limit ??
+    10;
   const queryParams = useMemo(() => {
     return {
       page: Number(page),
@@ -233,8 +244,7 @@ const ListCategory = () => {
     });
   };
   useEffect(() => {
-    if (getCurrentShop && !categories.isPending) {
-      router.push(`?page=${queryParams.page}&limit=${queryParams.limit}`);
+    if (getCurrentShop && !categories.isPending && !categories.data) {
       categories.query(
         mapQuery(getCurrentShop?._id as string, keyword, queryParams)
       );
