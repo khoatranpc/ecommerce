@@ -17,14 +17,21 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { ColumnType } from "antd/es/table";
 import { useDebounce } from "use-debounce";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useGetCategories, useGetShopDetailByOwnerId } from "@/src/utils/hooks";
+import {
+  useCurrentUser,
+  useGetCategories,
+  useGetShopDetailByOwnerId,
+} from "@/src/utils/hooks";
 import { IObj, IQueryPaginate } from "@/src/types";
-import { queryGetCategories } from "@/src/utils/graphql-queries";
+import {
+  queryGetCategories,
+  queryGetShopInfo,
+} from "@/src/utils/graphql-queries";
 import EmptyData from "@/src/components/EmptyData";
 import FormCategory from "./FormCategory";
-import { ColumnType } from "antd/es/table";
 
 const { Title } = Typography;
 
@@ -199,6 +206,7 @@ const ListCategory = () => {
   const [searchText, setSearchText] = useState("");
   const [keyword] = useDebounce(searchText, 1000);
   const categories = useGetCategories();
+  const currUser = useCurrentUser();
   const currentShop = useGetShopDetailByOwnerId();
   const getCurrentShop = currentShop.data?.getShopByOwnerId as IObj;
   const searchParams = useSearchParams();
@@ -243,6 +251,18 @@ const ListCategory = () => {
       _idUpdate: _idUpdate,
     });
   };
+  useEffect(() => {
+    if (!getCurrentShop) {
+      currentShop.query({
+        query: queryGetShopInfo,
+        variables: {
+          input: {
+            ownerId: currUser.data.getCurrentUser._id as string,
+          },
+        },
+      });
+    }
+  }, []);
   useEffect(() => {
     if (getCurrentShop && !categories.isPending) {
       categories.query(

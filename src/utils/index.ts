@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 export const getFromLocalStorage = (key: string) => {
   if (!key || typeof window === "undefined") {
     return "";
@@ -17,4 +19,8 @@ export const removeLocalStorage = (key: string) => {
     return "";
   }
   return localStorage.removeItem(key);
+};
+
+export const generateSKU = (prefix = "SKU") => {
+  return `${prefix}-${uuidv4().split("-")[0].toUpperCase()}`;
 };

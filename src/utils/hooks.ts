@@ -1,6 +1,5 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearUpload, queryUpload } from "./../store/reducers/file";
 import { redirect } from "next/navigation";
 import { AppDispatch, RootState } from "../store";
 import { IObj, IPayloadGraphql, IReducerStore } from "../types";
@@ -20,11 +19,14 @@ import {
   queryGetCategories,
 } from "../store/reducers/category";
 import { removeLocalStorage, setLocalStorage } from ".";
+import { AxiosRequestConfig, Method } from "axios";
+import instanceAxios from "./axios";
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
-    payload?: IPayloadGraphql,
-    callback?: (dataSuccess: any, error: any) => void
+    payload?: IPayloadGraphql | any,
+    callback?: (dataSuccess: any, error: any) => void,
+    isRest?: boolean
   ) => any;
   clear?: () => void;
   refresh?: () => void;
@@ -44,14 +46,19 @@ const createHook = (
     const dispatch = useDispatch<AppDispatch>();
     const query = (
       payload?: IPayloadGraphql,
-      callback?: (dataSuccess: any, error: any) => void
+      callback?: (dataSuccess: any, error: any) => void,
+      isRest?: boolean
     ) => {
-      dispatch(
-        queryFnc({
-          ...payload,
-          callback,
-        })
-      );
+      if (!isRest) {
+        dispatch(
+          queryFnc({
+            ...payload,
+            callback,
+          })
+        );
+      } else {
+        dispatch(queryFnc(payload as any));
+      }
     };
     const refresh = () => {
       const getPayloadQueried = state.payloadQuery;
@@ -69,7 +76,55 @@ const createHook = (
     };
   };
 };
-
+export const useRequestRestApi = () => {
+  const [data, setData] = useState<IReducerStore>({
+    data: null,
+    error: null,
+    isError: false,
+    isFetched: false,
+    isPending: false,
+    isSuccess: false,
+    payloadQuery: null,
+  });
+  const query = async (
+    endpoint: string,
+    method: Method,
+    payload: any,
+    config?: AxiosRequestConfig
+  ) => {
+    try {
+      setData({
+        ...data,
+        isPending: true,
+      });
+      const response = await instanceAxios[method as "post"](
+        endpoint ?? "",
+        payload ?? config,
+        config
+      );
+      setData({
+        ...data,
+        isPending: false,
+        isFetched: true,
+        data: response.data,
+      });
+      return response;
+    } catch (err) {
+      setData({
+        ...data,
+        isPending: false,
+        isFetched: true,
+        error: err,
+        isError: true,
+      });
+      return null;
+    }
+  };
+  return {
+    data,
+    query,
+  };
+};
 export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
   const currentUser = useCurrentUser();
   if (!currentUser.data?.getCurrentUser) {
@@ -93,8 +148,6 @@ export const useGetShopDetailByOwnerId = createHook(
   "shopDetailInfo",
   queryShopDetailInfoByOwnerId
 );
-
-export const useUpload = createHook("upload", queryUpload, clearUpload);
 
 export const useCreateShopInfo = createHook(
   "createShopInfo",

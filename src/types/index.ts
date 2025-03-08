@@ -16,7 +16,7 @@ export interface IReducerStore<T = any> {
   payloadQuery: any;
 }
 
-export interface IPayloadGraphql {
+export interface IPayloadGraphql extends IObj {
   query: string;
   variables?: {
     input: IObj;

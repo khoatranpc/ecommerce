@@ -8,14 +8,16 @@ export const createQueryThunk = (
   name: string,
   urlRestApi?: string,
   method?: Method,
-  config?: AxiosRequestConfig<IPayloadGraphql>
+  config?: AxiosRequestConfig<IPayloadGraphql>,
+  isRestApi?: boolean
 ) => {
   return createAsyncThunk(`${name}/fetch`, async (payload) => {
     return createQueryAxios(
       payload as unknown as IPayloadGraphql,
       urlRestApi,
       method,
-      config
+      config,
+      isRestApi
     )();
   });
 };

@@ -60,6 +60,9 @@ const ShopManagementLayout = (props: { children: React.ReactNode }) => {
               key: "products",
               icon: <ShoppingOutlined />,
               label: "Sản phẩm",
+              onClick() {
+                router.push("/shop-management/products");
+              },
             },
             {
               key: "orders",

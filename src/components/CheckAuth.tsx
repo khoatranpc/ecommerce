@@ -1,5 +1,5 @@
 "use client";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Loading from "@/src/components/Loading";
@@ -11,6 +11,7 @@ export default function CheckAuth() {
   const currentUser = useCurrentUser();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const pathName = usePathname();
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -36,12 +37,22 @@ export default function CheckAuth() {
               router.push("/login");
             }
             if (dataSuccess) {
-              console.log(dataSuccess)
+              console.log("🚀 ~ useEffect ~ dataSuccess:", dataSuccess)
               if (dataSuccess.getCurrentUser.role === Role.shop) {
-                router.push("/shop-management");
+                if (
+                  callBackUrl &&
+                  callBackUrl.includes("/shop-management")
+                ) {
+                  router.push(callBackUrl);
+                } else router.push("/shop-management");
               } else {
                 if (dataSuccess.getCurrentUser.role === Role.admin) {
-                  router.push("/admin");
+                  if (
+                    callBackUrl &&
+                    callBackUrl.includes("/admin")
+                  ) {
+                    router.push(callBackUrl);
+                  } else router.push("/admin");
                 }
               }
             }

@@ -72,15 +72,15 @@ const ShopInfo = () => {
   };
   useEffect(() => {
     if (
-      !currentShopInfo.data.getShopByOwnerId &&
+      !currentShopInfo.data?.getShopByOwnerId &&
       !currentShopInfo.isFetched &&
-      currUser.data.getCurrentUser
+      currUser.data?.getCurrentUser
     ) {
       currentShopInfo.query({
         query: queryGetShopInfo,
         variables: {
           input: {
-            ownerId: currUser.data.getCurrentUser._id as string,
+            ownerId: currUser.data?.getCurrentUser?._id as string,
           },
         },
       });
@@ -117,7 +117,7 @@ const ShopInfo = () => {
                           {
                             name: "logo",
                             uid: "1",
-                            url: (getCurrentShopInfo.logo as string) ?? "",
+                            url: (getCurrentShopInfo?.logo as string) ?? "",
                           },
                         ]
                   }

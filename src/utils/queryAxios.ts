@@ -6,9 +6,10 @@ const createQueryAxios = (
   payload: IPayloadGraphql,
   urlRestApi?: string,
   method: Method = "post",
-  config?: AxiosRequestConfig<IPayloadGraphql>
+  config?: AxiosRequestConfig<any>,
+  isRestApi?: boolean
 ) => {
-  return async (isRestApi?: boolean) => {
+  return async () => {
     if (!isRestApi) {
       const data = await instanceAxios.post("/graphql", payload);
       return data;

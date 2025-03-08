@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import counter from "./reducers/example";
 import { verifyAccount, currentUser, userRegister } from "./reducers/user";
 import { createShopInfo, shopDetailInfo } from "./reducers/shop";
-import { upload } from "./reducers/file";
 import { categories, createCategory } from "./reducers/category";
 
 export const store = configureStore({
@@ -13,7 +12,6 @@ export const store = configureStore({
     userRegister: userRegister.reducer,
     shopDetailInfo: shopDetailInfo.reducer,
     createShopInfo: createShopInfo.reducer,
-    upload: upload.reducer,
     categories: categories.reducer,
     createCategory: createCategory.reducer,
   },
