@@ -171,4 +171,13 @@ const ProductTable = ({
   );
 };
 
-export default memo(ProductTable);
+export default memo(ProductTable, (prevProps, nextProps) => {
+  if (
+    prevProps.data !== nextProps.data ||
+    prevProps.loading !== nextProps.loading ||
+    JSON.stringify(prevProps.pagination) !==
+      JSON.stringify(nextProps.pagination)
+  )
+    return false;
+  return true;
+});

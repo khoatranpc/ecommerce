@@ -25,22 +25,20 @@ const SelectCategories = ({ value, onChange, className, ...props }: Props) => {
     };
   });
   useEffect(() => {
-    if (props.shopId) {
-      categories.query({
-        query: queryGetCategories(),
-        variables: {
-          input: {
-            filter: {
-              shop: [props.shopId],
-              status: [Status.active],
-            },
-            paginate: {
-              limit: 500,
-            },
+    categories.query({
+      query: queryGetCategories(),
+      variables: {
+        input: {
+          filter: {
+            shop: props.shopId ? [props.shopId] : [],
+            status: [Status.active],
+          },
+          paginate: {
+            limit: 500,
           },
         },
-      });
-    }
+      },
+    });
   }, [props.shopId]);
   return (
     <Select

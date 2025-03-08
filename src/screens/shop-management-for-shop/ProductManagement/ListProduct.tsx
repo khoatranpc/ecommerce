@@ -1,11 +1,24 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { Input, Button, Space, Typography, Select, Card, Row, Col } from "antd";
+import {
+  Input,
+  Button,
+  Space,
+  Typography,
+  Select,
+  Card,
+  Row,
+  Col,
+  InputNumber,
+} from "antd";
 import {
   SearchOutlined,
   PlusOutlined,
   ReloadOutlined,
   FilterOutlined,
+  MenuOutlined,
+  InfoCircleOutlined,
+  ArrowRightOutlined,
 } from "@ant-design/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
@@ -13,6 +26,8 @@ import { useGetShopDetailByOwnerId, useProducts } from "@/src/utils/hooks";
 import { IObj, IQueryPaginate } from "@/src/types";
 import ProductTable from "./ProductTable";
 import { queryProducts } from "@/src/utils/graphql-queries";
+import SelectCategories from "@/src/components/SelectCategories";
+import SelectStatus from "@/src/components/SelectStatus";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -41,20 +56,6 @@ const mapQuery = (
   };
 };
 
-// Add mock data
-const mockProducts = Array.from({ length: 50 }, (_, i) => ({
-  id: `${i + 1}`,
-  name: `Sản phẩm ${i + 1}`,
-  image: "https://picsum.photos/200/300",
-  price: Math.floor(Math.random() * 1000000) + 100000,
-  originalPrice: Math.floor(Math.random() * 1000000) + 200000,
-  stock: Math.floor(Math.random() * 100),
-  sold: Math.floor(Math.random() * 50),
-  category: ["Điện thoại", "Máy tính", "Phụ kiện"][i % 3],
-  status: ["active", "inactive", "out_of_stock"][i % 3],
-  createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-}));
-
 const ListProduct = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,9 +64,9 @@ const ListProduct = () => {
   const [searchText, setSearchText] = useState(
     searchParams.get("keyword") || ""
   );
+  const [filter, setFilter] = useState<IObj>({});
+  const [debounceFilter] = useDebounce(filter, 2000);
   const [keyword] = useDebounce(searchText, 1000);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
 
   const currentShop = useGetShopDetailByOwnerId();
   const shopId = currentShop.data?.getShopByOwnerId?._id;
@@ -92,6 +93,15 @@ const ListProduct = () => {
     } as IQueryPaginate;
   }, [page, limit]);
 
+  const queryFilter = useMemo(() => {
+    return {
+      ...(products.payloadQuery?.variables?.input?.filter as IObj),
+      ...debounceFilter,
+      shop: [shopId],
+      keywords: keyword,
+    };
+  }, [shopId, keyword, debounceFilter]);
+
   const handleRefresh = () => {
     if (shopId) {
       products.query(
@@ -109,19 +119,9 @@ const ListProduct = () => {
   };
   useEffect(() => {
     if (currentShop.data?.getShopByOwnerId) {
-      products.query(
-        mapQuery(
-          queryProducts,
-          {
-            ...(products.payloadQuery?.variables?.input?.filter as IObj),
-            shop: [shopId],
-            keywords: keyword,
-          },
-          queryParams
-        )
-      );
+      products.query(mapQuery(queryProducts, queryFilter, queryParams));
     }
-  }, [currentShop.data, queryParams, keyword]);
+  }, [currentShop.data, queryParams, keyword, queryFilter]);
 
   return (
     <div className="space-y-4">
@@ -157,36 +157,55 @@ const ListProduct = () => {
               allowClear
             />
           </Col>
+        </Row>
+        <Row gutter={[16, 16]} className="mb-4">
           <Col xs={24} sm={8} md={6}>
-            <Select
-              className="w-full"
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-              placeholder="Lọc theo danh mục"
-              suffixIcon={<FilterOutlined />}
-            >
-              <Option value="all">Tất cả danh mục</Option>
-              <Option value="phone">Điện thoại</Option>
-              <Option value="laptop">Máy tính</Option>
-              <Option value="accessory">Phụ kiện</Option>
-            </Select>
+            <SelectCategories
+              shopId={shopId}
+              prefix={<MenuOutlined />}
+              onChange={(value) => {
+                setFilter({
+                  ...filter,
+                  categories: value,
+                });
+              }}
+            />
           </Col>
           <Col xs={24} sm={8} md={6}>
-            <Select
-              className="w-full"
-              value={selectedStatus}
-              onChange={setSelectedStatus}
-              placeholder="Lọc theo trạng thái"
-              suffixIcon={<FilterOutlined />}
-            >
-              <Option value="all">Tất cả trạng thái</Option>
-              <Option value="active">Đang bán</Option>
-              <Option value="inactive">Đã ẩn</Option>
-              <Option value="out_of_stock">Hết hàng</Option>
-            </Select>
+            <SelectStatus
+              onChange={(value) => {
+                setFilter({
+                  ...filter,
+                  status: value,
+                });
+              }}
+              prefix={<InfoCircleOutlined />}
+            />
+          </Col>
+          <Col xs={24} sm={8} md={6}>
+            <div className="flex items-center gap-2">
+              <InputNumber
+                prefix={<>$</>}
+                placeholder="Giá từ"
+                className="w-full"
+                min={0}
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              />
+              <ArrowRightOutlined />
+              <InputNumber
+                prefix={<>$</>}
+                placeholder="Đến"
+                className="w-full"
+                min={0}
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              />
+            </div>
           </Col>
         </Row>
-
         <ProductTable
           data={getDataProducts}
           loading={products.isPending}
