@@ -240,3 +240,53 @@ export const queryCreateProduct = `#graphql
         }
     }
 `;
+
+export const queryProducts = `#graphql
+    query Query($input: GetProductsInput) {
+        getProducts(input: $input) {
+            data {
+                createdBy {
+                    _id
+                    name
+                }
+                description
+                images
+                name
+                stock
+                price
+                shop {
+                    _id
+                    name
+                    owner {
+                        name
+                        email
+                        _id
+                    }
+                }
+                sku
+                slug
+                status
+                updatedAt
+                variants {
+                    _id
+                    attributes {
+                        key
+                        value
+                    }
+                    image
+                    price
+                    sku
+                    status
+                    stock
+                    name
+                }
+            }
+            paginate {
+                limit
+                page
+                pages
+                total
+            }
+        }
+    }
+`;

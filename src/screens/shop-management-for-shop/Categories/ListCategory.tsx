@@ -211,13 +211,13 @@ const ListCategory = () => {
   const getCurrentShop = currentShop.data?.getShopByOwnerId as IObj;
   const searchParams = useSearchParams();
   const page =
-    searchParams.get("page") ??
-    categories.payloadQuery?.variables?.input?.paginate?.page ??
-    1;
+    Number(searchParams.get("page")) !== 0
+      ? Number(searchParams.get("page"))
+      : categories.payloadQuery?.variables?.input?.paginate?.page ?? 1;
   const limit =
-    searchParams.get("limit") ??
-    categories.payloadQuery?.variables?.input?.paginate?.limit ??
-    10;
+    Number(searchParams.get("limit")) !== 0
+      ? Number(searchParams.get("limit"))
+      : categories.payloadQuery?.variables?.input?.paginate?.limit ?? 10;
   const queryParams = useMemo(() => {
     return {
       page: Number(page),

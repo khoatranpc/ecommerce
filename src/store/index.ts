@@ -3,7 +3,7 @@ import counter from "./reducers/example";
 import { verifyAccount, currentUser, userRegister } from "./reducers/user";
 import { createShopInfo, shopDetailInfo } from "./reducers/shop";
 import { categories, createCategory } from "./reducers/category";
-import { createAProduct } from "./reducers/product";
+import { createAProduct, products } from "./reducers/product";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +16,7 @@ export const store = configureStore({
     categories: categories.reducer,
     createCategory: createCategory.reducer,
     createAProduct: createAProduct.reducer,
+    products: products.reducer,
   },
 });
 

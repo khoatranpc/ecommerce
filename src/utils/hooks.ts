@@ -21,7 +21,11 @@ import {
 import { removeLocalStorage, setLocalStorage } from ".";
 import { AxiosRequestConfig, Method } from "axios";
 import instanceAxios from "./axios";
-import { clearCreateAProduct, queryCreateAProduct } from "../store/reducers/product";
+import {
+  clearCreateAProduct,
+  queryCreateAProduct,
+  queryProducts,
+} from "../store/reducers/product";
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
@@ -176,3 +180,5 @@ export const useCreateAProduct = createHook(
   queryCreateAProduct,
   clearCreateAProduct
 );
+
+export const useProducts = createHook("products", queryProducts);

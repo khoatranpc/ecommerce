@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Input, Button, Space, Typography, Select, Card, Row, Col } from "antd";
 import {
   SearchOutlined,
@@ -9,28 +9,28 @@ import {
 } from "@ant-design/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
-import { useGetShopDetailByOwnerId } from "@/src/utils/hooks";
+import { useGetShopDetailByOwnerId, useProducts } from "@/src/utils/hooks";
 import { IObj, IQueryPaginate } from "@/src/types";
 import ProductTable from "./ProductTable";
+import { queryProducts } from "@/src/utils/graphql-queries";
 
 const { Title } = Typography;
 const { Option } = Select;
 
 const mapQuery = (
-  shopId: string,
-  keyword = "",
+  query: string,
+  filter: IObj,
   paginate: IQueryPaginate = {
     limit: 10,
     page: 1,
   }
 ) => {
   return {
-    query: ``,
+    query: query,
     variables: {
       input: {
         filter: {
-          shop: [shopId],
-          keyword: keyword,
+          ...filter,
         },
         paginate: {
           limit: Number(paginate.limit),
@@ -55,23 +55,11 @@ const mockProducts = Array.from({ length: 50 }, (_, i) => ({
   createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
 }));
 
-const mockResponse = {
-  data: {
-    getProducts: {
-      data: mockProducts,
-      paginate: {
-        page: 1,
-        limit: 10,
-        total: mockProducts.length,
-      },
-    },
-  },
-  isPending: false,
-};
-
 const ListProduct = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const products = useProducts();
+  const getDataProducts = (products.data?.getProducts?.data as IObj[]) ?? [];
   const [searchText, setSearchText] = useState(
     searchParams.get("keyword") || ""
   );
@@ -79,20 +67,17 @@ const ListProduct = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
 
-  // Replace products hook with mock data
-  const products = {
-    data: mockResponse.data,
-    isPending: mockResponse.isPending,
-    query: () => {
-      console.log("Mock query called");
-    },
-  };
-
   const currentShop = useGetShopDetailByOwnerId();
   const shopId = currentShop.data?.getShopByOwnerId?._id;
 
-  const page = Number(searchParams.get("page")) || 1;
-  const limit = Number(searchParams.get("limit")) || 10;
+  const page =
+    Number(searchParams.get("page")) !== 0
+      ? Number(searchParams.get("page"))
+      : products.payloadQuery?.variables?.input?.paginate?.page ?? 1;
+  const limit =
+    Number(searchParams.get("limit")) !== 0
+      ? Number(searchParams.get("limit"))
+      : products.payloadQuery?.variables?.input?.paginate?.limit ?? 10;
 
   const handlePaginationChange = (page: number, pageSize: number) => {
     const newParams = new URLSearchParams(searchParams.toString());
@@ -100,12 +85,43 @@ const ListProduct = () => {
     newParams.set("limit", String(pageSize));
     router.push(`?${newParams.toString()}`);
   };
+  const queryParams = useMemo(() => {
+    return {
+      page: Number(page),
+      limit: Number(limit),
+    } as IQueryPaginate;
+  }, [page, limit]);
 
   const handleRefresh = () => {
     if (shopId) {
-      // products.query(mapQuery(shopId, keyword, { page, limit }));
+      products.query(
+        mapQuery(
+          queryProducts,
+          {
+            ...(products.payloadQuery?.variables?.input?.filter as IObj),
+          },
+          {
+            ...(products.payloadQuery?.variables?.input?.paginate as any),
+          }
+        )
+      );
     }
   };
+  useEffect(() => {
+    if (currentShop.data?.getShopByOwnerId) {
+      products.query(
+        mapQuery(
+          queryProducts,
+          {
+            ...(products.payloadQuery?.variables?.input?.filter as IObj),
+            shop: [shopId],
+            keywords: keyword,
+          },
+          queryParams
+        )
+      );
+    }
+  }, [currentShop.data, queryParams, keyword]);
 
   return (
     <div className="space-y-4">
@@ -172,7 +188,7 @@ const ListProduct = () => {
         </Row>
 
         <ProductTable
-          data={products.data?.getProducts?.data}
+          data={getDataProducts}
           loading={products.isPending}
           pagination={{
             current: page,

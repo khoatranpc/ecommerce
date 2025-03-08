@@ -8,3 +8,7 @@ export const createAProduct = createSliceReducer("createAProduct", [
   queryCreateAProduct,
 ]);
 export const clearCreateAProduct = createAProduct.actions.clear;
+
+export const queryProducts = createQueryThunk("queryProducts");
+export const products = createSliceReducer("products", [queryProducts]);
+

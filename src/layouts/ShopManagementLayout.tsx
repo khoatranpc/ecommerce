@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import {
   DashboardOutlined,
@@ -10,9 +10,14 @@ import {
 } from "@ant-design/icons";
 import { Button, Image, Layout, Menu, theme } from "antd";
 import UserComponent from "../components/UserComponent";
-import { useCheckCurrentRoleUser } from "../utils/hooks";
+import {
+  useCheckCurrentRoleUser,
+  useCurrentUser,
+  useGetShopDetailByOwnerId,
+} from "../utils/hooks";
 import { Role } from "../types/enum";
 import { useRouter } from "next/navigation";
+import { queryShopInfoByOwnerId } from "../utils/graphql-queries";
 interface Window {
   localStorage: Storage;
 }
@@ -22,11 +27,26 @@ const { Header, Sider, Content } = Layout;
 
 const ShopManagementLayout = (props: { children: React.ReactNode }) => {
   useCheckCurrentRoleUser(Role.shop);
+  const currentUser = useCurrentUser();
+  const getShopInfo = useGetShopDetailByOwnerId();
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const router = useRouter();
+  useEffect(() => {
+    if (!getShopInfo.data) {
+      getShopInfo.query({
+        query: queryShopInfoByOwnerId,
+        variables: {
+          input: {
+            ownerId: currentUser.data?.getCurrentUser?._id as string,
+          },
+        },
+      });
+    }
+  }, []);
+
   return (
     <Layout className="!min-h-screen">
       <Sider

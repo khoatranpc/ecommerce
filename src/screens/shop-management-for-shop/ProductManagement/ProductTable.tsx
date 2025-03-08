@@ -38,7 +38,7 @@ const ProductTable = ({
         render: (record: IObj) => (
           <Space>
             <Image
-              src={record.image}
+              src={record.images?.[0] ?? ""}
               alt={record.name}
               width={60}
               height={60}
@@ -49,7 +49,7 @@ const ProductTable = ({
               <Text strong className="block">
                 {record.name}
               </Text>
-              <Text type="secondary">SKU: {record.id}</Text>
+              <Text type="secondary">SKU: {record.sku}</Text>
             </div>
           </Space>
         ),
@@ -76,9 +76,9 @@ const ProductTable = ({
         dataIndex: "stock",
         key: "stock",
         width: 100,
-        render: (stock: number) => (
-          <Tag color={stock > 10 ? "blue" : "warning"}>{stock}</Tag>
-        ),
+        render: (stock: number) => {
+          return <Tag color={stock > 10 ? "blue" : "warning"}>{stock}</Tag>;
+        },
       },
       {
         title: "Đã bán",
