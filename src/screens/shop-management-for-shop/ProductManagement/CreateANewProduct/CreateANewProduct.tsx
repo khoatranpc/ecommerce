@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Barcode from "react-barcode";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -17,22 +17,32 @@ import {
 import { PlusOutlined, SaveOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 import { mapStatusToStatusProductString, Status } from "@/src/types/enum";
-import { useRequestRestApi } from "@/src/utils/hooks";
+import {
+  useCreateAProduct,
+  useCurrentUser,
+  useGetShopDetailByOwnerId,
+  useRequestRestApi,
+} from "@/src/utils/hooks";
 import { generateSKU } from "@/src/utils";
+import SelectCategories from "@/src/components/SelectCategories";
+import { IObj } from "@/src/types";
+import {
+  queryCreateProduct,
+  queryGetShopInfo,
+} from "@/src/utils/graphql-queries";
+import { toast } from "react-toastify";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
-// Add imageUrl to variant interface
 interface ProductFormData {
   name: string;
   description: string;
   price: number;
   stock: number;
-  category: string;
+  categories: string[];
   status: Status;
   sku: string;
-  slug: string;
   variants: {
     name: string;
     price: number;
@@ -43,14 +53,20 @@ interface ProductFormData {
       key: string;
       value: string;
     }[];
-    imageUrl?: number | string;
+    image?: number | string;
   }[];
+  keywords?: string;
   images: string[];
 }
 
 const CreateANewProduct = () => {
   const [mainImages, setMainImages] = useState<UploadFile[]>([]);
   const uploadImage = useRequestRestApi();
+  const currentShop = useGetShopDetailByOwnerId();
+  const getShopInfo = currentShop.data?.getShopByOwnerId as IObj;
+  const currentUser = useCurrentUser();
+  const getCurrent = currentUser.data?.getCurrentUser as IObj;
+  const createAProduct = useCreateAProduct();
   const router = useRouter();
   const {
     control,
@@ -58,6 +74,7 @@ const CreateANewProduct = () => {
     watch,
     formState: { errors, isValid },
     setValue,
+    reset,
   } = useForm<ProductFormData>({
     defaultValues: {
       status: Status.active,
@@ -96,18 +113,52 @@ const CreateANewProduct = () => {
         payload.images = (upload?.data.files as any[]).map((img) => img.url);
         if (payload.variants.length) {
           payload.variants.forEach((variant, index: number) => {
-            if (typeof variant.imageUrl !== "undefined") {
-              payload.variants[index].imageUrl =
-                payload.images[variant.imageUrl as number];
+            if (typeof variant.image !== "undefined") {
+              payload.variants[index].image =
+                payload.images[variant.image as number];
             }
           });
         }
       }
     }
-
-    console.log("Form data:", payload);
+    createAProduct.query(
+      {
+        query: queryCreateProduct,
+        variables: {
+          input: {
+            ...payload,
+            shop: getShopInfo?._id,
+          },
+        },
+      },
+      (dataSuccess, error) => {
+        if (dataSuccess) {
+          toast.success("Lưu thông tin sản phẩm thành công!");
+        }
+        if (error) {
+          toast.error(`Lưu thông tin thất bại! ${error.message}!`);
+        }
+      }
+    );
   };
-  console.log(Object.keys(errors));
+  useEffect(() => {
+    if (getCurrent && !getShopInfo) {
+      currentShop.query({
+        query: queryGetShopInfo,
+        variables: {
+          input: {
+            ownerId: getCurrent._id as string,
+          },
+        },
+      });
+    }
+  }, []);
+  useEffect(() => {
+    if (createAProduct.isSuccess) {
+      createAProduct.clear?.();
+      reset();
+    }
+  }, [createAProduct.isSuccess]);
   return (
     <div className="max-w-5xl mx-auto relative">
       <div className="flex items-center justify-between mb-8 sticky top-0 z-50 bg-white py-2">
@@ -130,7 +181,10 @@ const CreateANewProduct = () => {
             type="primary"
             onClick={handleSubmit(onSubmit)}
             icon={<SaveOutlined />}
-            disabled={!isValid}
+            disabled={
+              !isValid || createAProduct.isPending || uploadImage.data.isPending
+            }
+            loading={createAProduct.isPending || uploadImage.data.isPending}
           >
             Lưu sản phẩm
           </Button>
@@ -160,6 +214,7 @@ const CreateANewProduct = () => {
                   help={errors.name?.message}
                   required
                   className="mb-0"
+                  layout="vertical"
                 >
                   <Input
                     {...field}
@@ -181,6 +236,7 @@ const CreateANewProduct = () => {
                   help={errors.price?.message}
                   required
                   className="mb-0"
+                  layout="vertical"
                 >
                   <InputNumber
                     {...field}
@@ -195,6 +251,46 @@ const CreateANewProduct = () => {
                 </Form.Item>
               )}
             />
+            <div className="flex col-span-full grid grid-cols-2 gap-4">
+              <Controller
+                name="keywords"
+                control={control}
+                render={({ field }) => (
+                  <Form.Item
+                    className="mb-0 flex-1"
+                    label="Từ khoá tìm kiếm"
+                    layout="vertical"
+                  >
+                    <Input
+                      {...field}
+                      placeholder="Nhập từ khoá tìm kiếm"
+                      size="middle"
+                    />
+                  </Form.Item>
+                )}
+              />
+              <Controller
+                name="categories"
+                rules={{
+                  required: "Lựa chọn ít nhất một danh mục",
+                }}
+                control={control}
+                render={({ field }) => (
+                  <Form.Item
+                    className="mb-0 flex-1"
+                    label="Danh mục"
+                    layout="vertical"
+                    required
+                  >
+                    <SelectCategories
+                      {...field}
+                      size="middle"
+                      shopId={getShopInfo?._id}
+                    />
+                  </Form.Item>
+                )}
+              />
+            </div>
             <div className="flex col-span-full grid grid-cols-2">
               <Controller
                 name="sku"
@@ -350,7 +446,7 @@ const CreateANewProduct = () => {
                     sku: generateSKU(`PROD-V${fields.length + 1}`),
                     status: Status.active,
                     attributes: [],
-                    imageUrl: 0,
+                    image: 0,
                   })
                 }
                 icon={<PlusOutlined />}
@@ -384,7 +480,7 @@ const CreateANewProduct = () => {
                           return (
                             <Controller
                               key={image.uid}
-                              name={`variants.${index}.imageUrl`}
+                              name={`variants.${index}.image`}
                               control={control}
                               render={({ field: { value, onChange } }) => (
                                 <div

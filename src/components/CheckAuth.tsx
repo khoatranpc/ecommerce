@@ -37,7 +37,6 @@ export default function CheckAuth() {
               router.push("/login");
             }
             if (dataSuccess) {
-              console.log("🚀 ~ useEffect ~ dataSuccess:", dataSuccess)
               if (dataSuccess.getCurrentUser.role === Role.shop) {
                 if (
                   callBackUrl &&

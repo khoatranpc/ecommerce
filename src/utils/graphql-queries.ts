@@ -232,3 +232,11 @@ export const queryCreateCategory = `#graphql
         }
     }
 `;
+
+export const queryCreateProduct = `#graphql
+    mutation Mutation($input: CreateProductInput) {
+        createProduct(input: $input) {
+                _id
+        }
+    }
+`;

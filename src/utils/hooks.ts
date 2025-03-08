@@ -21,11 +21,15 @@ import {
 import { removeLocalStorage, setLocalStorage } from ".";
 import { AxiosRequestConfig, Method } from "axios";
 import instanceAxios from "./axios";
+import { clearCreateAProduct, queryCreateAProduct } from "../store/reducers/product";
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
-    payload?: IPayloadGraphql | any,
-    callback?: (dataSuccess: any, error: any) => void,
+    payload?: IPayloadGraphql,
+    callback?: (
+      dataSuccess: IObj,
+      error: { message?: string; [k: string]: any }
+    ) => void,
     isRest?: boolean
   ) => any;
   clear?: () => void;
@@ -35,7 +39,10 @@ const createHook = (
   nameState: keyof RootState,
   queryFnc: (params: {
     payload?: IPayloadGraphql;
-    callback?: (dataSuccess: any, error: any) => void;
+    callback?: (
+      dataSuccess: IObj,
+      error: { message?: string; [k: string]: any }
+    ) => void;
   }) => any,
   clearFnc?: Function
 ) => {
@@ -46,7 +53,10 @@ const createHook = (
     const dispatch = useDispatch<AppDispatch>();
     const query = (
       payload?: IPayloadGraphql,
-      callback?: (dataSuccess: any, error: any) => void,
+      callback?: (
+        dataSuccess: IObj,
+        error: { message?: string; [k: string]: any }
+      ) => void,
       isRest?: boolean
     ) => {
       if (!isRest) {
@@ -159,4 +169,10 @@ export const useCreateCategory = createHook(
   "createCategory",
   queryCreateCategory,
   createCreateCategory
+);
+
+export const useCreateAProduct = createHook(
+  "createAProduct",
+  queryCreateAProduct,
+  clearCreateAProduct
 );
