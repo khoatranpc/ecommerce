@@ -23,8 +23,11 @@ import { AxiosRequestConfig, Method } from "axios";
 import instanceAxios from "./axios";
 import {
   clearCreateAProduct,
+  clearUpdateProduct,
   queryCreateAProduct,
+  queryProductBySlug,
   queryProducts,
+  queryUpdateProduct,
 } from "../store/reducers/product";
 
 export interface TypeReturnHook extends IReducerStore {
@@ -182,3 +185,13 @@ export const useCreateAProduct = createHook(
 );
 
 export const useProducts = createHook("products", queryProducts);
+export const useGetProductDetailBySlug = createHook(
+  "productDetail",
+  queryProductBySlug
+);
+
+export const useUpdateProduct = createHook(
+  "updateProduct",
+  queryUpdateProduct,
+  clearUpdateProduct
+);

@@ -28,9 +28,9 @@ import ProductTable from "./ProductTable";
 import { queryProducts } from "@/src/utils/graphql-queries";
 import SelectCategories from "@/src/components/SelectCategories";
 import SelectStatus from "@/src/components/SelectStatus";
+import RangeNumber from "@/src/components/RangeNumber";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 const mapQuery = (
   query: string,
@@ -122,104 +122,105 @@ const ListProduct = () => {
       products.query(mapQuery(queryProducts, queryFilter, queryParams));
     }
   }, [currentShop.data, queryParams, keyword, queryFilter]);
-
   return (
     <div className="space-y-4">
-      <Card>
-        <div className="mb-6 flex flex-wrap gap-4 justify-between items-center">
-          <Title level={3} className="!mb-0">
-            Danh sách sản phẩm (
-            {products.data?.getProducts?.paginate?.total ?? 0})
-          </Title>
-          <Space>
-            <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
-              Làm mới
-            </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                router.push("/shop-management/products/create");
-              }}
-            >
-              Thêm sản phẩm
-            </Button>
-          </Space>
-        </div>
+      <div className="mb-6 flex flex-wrap gap-4 justify-between items-center">
+        <Title level={3} className="!mb-0">
+          Danh sách sản phẩm ({products.data?.getProducts?.paginate?.total ?? 0}
+          )
+        </Title>
+        <Space>
+          <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+            Làm mới
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              router.push("/shop-management/products/create");
+            }}
+          >
+            Thêm sản phẩm
+          </Button>
+        </Space>
+      </div>
 
-        <Row gutter={[16, 16]} className="mb-4">
-          <Col xs={24} sm={8} md={6}>
-            <Input
-              placeholder="Tìm kiếm sản phẩm..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              allowClear
-            />
-          </Col>
-        </Row>
-        <Row gutter={[16, 16]} className="mb-4">
-          <Col xs={24} sm={8} md={6}>
-            <SelectCategories
-              shopId={shopId}
-              prefix={<MenuOutlined />}
-              onChange={(value) => {
-                setFilter({
-                  ...filter,
-                  categories: value,
-                });
-              }}
-            />
-          </Col>
-          <Col xs={24} sm={8} md={6}>
-            <SelectStatus
-              onChange={(value) => {
-                setFilter({
-                  ...filter,
-                  status: value,
-                });
-              }}
-              prefix={<InfoCircleOutlined />}
-            />
-          </Col>
-          <Col xs={24} sm={8} md={6}>
-            <div className="flex items-center gap-2">
-              <InputNumber
-                prefix={<>$</>}
-                placeholder="Giá từ"
-                className="w-full"
-                min={0}
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-              />
-              <ArrowRightOutlined />
-              <InputNumber
-                prefix={<>$</>}
-                placeholder="Đến"
-                className="w-full"
-                min={0}
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-              />
-            </div>
-          </Col>
-        </Row>
-        <ProductTable
-          data={getDataProducts}
-          loading={products.isPending}
-          pagination={{
-            current: page,
-            pageSize: limit,
-            total: products.data?.getProducts?.paginate?.total ?? 0,
-          }}
-          onPaginationChange={handlePaginationChange}
-          onEdit={(record) => console.log("Edit:", record)}
-          onDelete={(record) => console.log("Delete:", record)}
-          onCreateNew={() => console.log("Create new")}
-        />
-      </Card>
+      <Row gutter={[16, 16]} className="mb-4">
+        <Col xs={24} sm={8} md={6}>
+          <Input
+            placeholder="Tìm kiếm sản phẩm..."
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            allowClear
+          />
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]} className="mb-4">
+        <Col xs={24} sm={8} md={6}>
+          <SelectCategories
+            defaultValue={
+              products.payloadQuery?.variables?.input?.filter?.categories ?? []
+            }
+            shopId={shopId}
+            prefix={<MenuOutlined />}
+            onChange={(value) => {
+              setFilter({
+                ...filter,
+                categories: value,
+              });
+            }}
+          />
+        </Col>
+        <Col xs={24} sm={8} md={6}>
+          <SelectStatus
+            defaultValue={
+              products.payloadQuery?.variables?.input?.filter?.status ?? []
+            }
+            onChange={(value) => {
+              setFilter({
+                ...filter,
+                status: value,
+              });
+            }}
+            prefix={<InfoCircleOutlined />}
+          />
+        </Col>
+        <Col xs={24} sm={8} md={6}>
+          <RangeNumber
+            defaultValues={
+              (products.payloadQuery?.variables?.input?.filter?.price as string)
+                ?.split(",")
+                ?.map((item: string) => Number(item)) ?? []
+            }
+            placeholders={["Giá từ", "Đến"]}
+            prefixes={[<>$</>, <>$</>]}
+            onChange={(values) => {
+              setFilter({
+                ...filter,
+                price: values
+                  .filter((price) => typeof price === "number")
+                  .toString(),
+              });
+            }}
+          />
+        </Col>
+      </Row>
+      <ProductTable
+        data={getDataProducts}
+        loading={products.isPending}
+        pagination={{
+          current: page,
+          pageSize: limit,
+          total: products.data?.getProducts?.paginate?.total ?? 0,
+        }}
+        onPaginationChange={handlePaginationChange}
+        onEdit={(record) => {
+          router.push(`/shop-management/products/${record._id}`);
+        }}
+        onDelete={(record) => console.log("Delete:", record)}
+        onCreateNew={() => console.log("Create new")}
+      />
     </div>
   );
 };

@@ -1,9 +1,9 @@
 "use client";
-import CreateANewProduct from "@/src/screens/shop-management-for-shop/ProductManagement/CreateANewProduct/CreateANewProduct";
+import FormSaveAProduct from "@/src/screens/shop-management-for-shop/ProductManagement/CreateANewProduct/FormSaveAProduct";
 import React from "react";
 
 const page = () => {
-  return <CreateANewProduct />;
+  return <FormSaveAProduct />;
 };
 
 export default page;

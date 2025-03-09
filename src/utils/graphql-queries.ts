@@ -158,7 +158,9 @@ export const queryGetCategories = (fieldsQuery?: string) => {
   return `#graphql
     query GetCategories($input: FilterCategoriesInput) { 
         getCategories(input: $input) {
-            ${fieldsQuery ?? `
+            ${
+              fieldsQuery ??
+              `
             data {
                 _id
                 name
@@ -200,7 +202,8 @@ export const queryGetCategories = (fieldsQuery?: string) => {
                 pages
                 limit
             }
-            `}
+            `
+            }
         }
     }
   `;
@@ -245,6 +248,7 @@ export const queryProducts = `#graphql
     query Query($input: GetProductsInput) {
         getProducts(input: $input) {
             data {
+                _id
                 createdBy {
                     _id
                     name
@@ -273,7 +277,7 @@ export const queryProducts = `#graphql
                         key
                         value
                     }
-                    image
+                    imageIndex
                     price
                     sku
                     status
@@ -287,6 +291,65 @@ export const queryProducts = `#graphql
                 pages
                 total
             }
+        }
+    }
+`;
+
+export const queryGetProductBySlug = `#graphql
+    query GetProductBySlug($input: GetProductBySlugInput) {
+        getProductBySlug(input: $input) {
+            _id
+            categories {
+                _id
+                name
+            }
+            createdAt
+            createdBy {
+                _id
+                name
+                email
+            }
+            description
+            images
+            name
+            price
+            shop {
+                _id
+                name
+                owner {
+                    _id
+                    name
+                }
+            }
+            sku
+            slug
+            status
+            stock
+            updatedAt
+            variants {
+                _id
+                attributes {
+                    key
+                    value
+                }
+                imageIndex
+                name
+                price
+                sku
+                status
+                stock
+            }
+            updatedBy {
+                _id
+            }
+        }
+    }
+`;
+
+export const queryUpdateProductById = `#graphql
+    mutation UpdateProductById($input: UpdateProductInput) {
+        updateProductById(input: $input) {
+            _id
         }
     }
 `;

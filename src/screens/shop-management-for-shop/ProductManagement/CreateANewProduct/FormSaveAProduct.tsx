@@ -22,6 +22,7 @@ import {
   useCurrentUser,
   useGetShopDetailByOwnerId,
   useRequestRestApi,
+  useUpdateProduct,
 } from "@/src/utils/hooks";
 import { generateSKU } from "@/src/utils";
 import SelectCategories from "@/src/components/SelectCategories";
@@ -29,6 +30,7 @@ import { IObj } from "@/src/types";
 import {
   queryCreateProduct,
   queryGetShopInfo,
+  queryUpdateProductById,
 } from "@/src/utils/graphql-queries";
 import { toast } from "react-toastify";
 
@@ -53,20 +55,33 @@ interface ProductFormData {
       key: string;
       value: string;
     }[];
-    image?: number | string;
+    imageIndex?: number;
   }[];
   keywords?: string;
   images: string[];
 }
-
-const CreateANewProduct = () => {
-  const [mainImages, setMainImages] = useState<UploadFile[]>([]);
+interface Props {
+  isEdit?: boolean;
+  defaultProduct?: IObj;
+  hiddenTitle?: boolean;
+}
+const FormSaveAProduct = (props: Props) => {
+  const [mainImages, setMainImages] = useState<UploadFile[]>(
+    props.defaultProduct?.images?.map((item: string) => {
+      return {
+        thumbUrl: item,
+        url: item,
+        default: true,
+      };
+    }) ?? []
+  );
   const uploadImage = useRequestRestApi();
   const currentShop = useGetShopDetailByOwnerId();
   const getShopInfo = currentShop.data?.getShopByOwnerId as IObj;
   const currentUser = useCurrentUser();
   const getCurrent = currentUser.data?.getCurrentUser as IObj;
   const createAProduct = useCreateAProduct();
+  const updateProduct = useUpdateProduct();
   const router = useRouter();
   const {
     control,
@@ -76,13 +91,19 @@ const CreateANewProduct = () => {
     setValue,
     reset,
   } = useForm<ProductFormData>({
-    defaultValues: {
-      status: Status.active,
-      variants: [],
-      sku: generateSKU("PROD"),
-    },
+    defaultValues: props.defaultProduct
+      ? {
+          ...props.defaultProduct,
+          categories: (props.defaultProduct.categories as IObj[]).map(
+            (cat: IObj) => cat._id as string
+          ),
+        }
+      : {
+          status: Status.active,
+          variants: [],
+          sku: generateSKU("PROD"),
+        },
   });
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: "variants",
@@ -92,54 +113,83 @@ const CreateANewProduct = () => {
     const payload = {
       ...data,
     };
+
     const formData = new FormData();
     if (mainImages.length) {
+      let upload = null;
       mainImages.forEach((item) => {
         if (item.originFileObj) {
           formData.append("files", item.originFileObj as Blob);
         }
       });
-      const upload = await uploadImage.query(
-        "/upload/multiple",
-        "post",
-        formData,
-        {
+      if (mainImages.find((img) => img.originFileObj)) {
+        upload = await uploadImage.query("/upload/multiple", "post", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
-      );
-      if (upload?.data.files) {
-        payload.images = (upload?.data.files as any[]).map((img) => img.url);
-        if (payload.variants.length) {
-          payload.variants.forEach((variant, index: number) => {
-            if (typeof variant.image !== "undefined") {
-              payload.variants[index].image =
-                payload.images[variant.image as number];
-            }
-          });
+        });
+        if (upload?.data.files) {
+          payload.images = [
+            ...mainImages
+              .filter((item: any) => item.default)
+              .map((img) => img.url),
+            ...((upload?.data.files as any[]).map((img) => img.url) ?? []),
+          ];
         }
       }
     }
-    createAProduct.query(
-      {
-        query: queryCreateProduct,
-        variables: {
-          input: {
-            ...payload,
-            shop: getShopInfo?._id,
+    if (!props.isEdit) {
+      createAProduct.query(
+        {
+          query: queryCreateProduct,
+          variables: {
+            input: {
+              ...payload,
+              shop: getShopInfo?._id,
+            },
           },
         },
-      },
-      (dataSuccess, error) => {
-        if (dataSuccess) {
-          toast.success("Lưu thông tin sản phẩm thành công!");
+        (dataSuccess, error) => {
+          if (dataSuccess) {
+            toast.success("Lưu thông tin sản phẩm thành công!");
+          }
+          if (error) {
+            toast.error(`Lưu thông tin thất bại! ${error.message}!`);
+          }
         }
-        if (error) {
-          toast.error(`Lưu thông tin thất bại! ${error.message}!`);
-        }
+      );
+    } else {
+      if (props.defaultProduct) {
+        delete (payload as IObj)._id;
+        delete (payload as IObj).createdAt;
+        delete (payload as IObj).createdBy;
+        delete (payload as IObj).updatedAt;
+        delete (payload as IObj).slug;
+        updateProduct.query(
+          {
+            query: queryUpdateProductById,
+            variables: {
+              input: {
+                _id: props.defaultProduct?._id as string,
+                data: {
+                  ...payload,
+                  shop: getShopInfo?._id,
+                  updatedBy: getCurrent!._id as string,
+                },
+              },
+            },
+          },
+          (data, error) => {
+            if (data) {
+              toast.success("Cập nhật sản phẩm thành công!");
+            }
+            if (error) {
+              toast.error(`Thất bại! ${error.message}`);
+            }
+          }
+        );
       }
-    );
+    }
   };
   useEffect(() => {
     if (getCurrent && !getShopInfo) {
@@ -158,33 +208,48 @@ const CreateANewProduct = () => {
       createAProduct.clear?.();
       reset();
     }
-  }, [createAProduct.isSuccess]);
+    if (updateProduct.isSuccess) {
+      updateProduct.clear?.();
+      reset();
+    }
+  }, [createAProduct.isSuccess, updateProduct.isSuccess]);
   return (
     <div className="max-w-5xl mx-auto relative">
       <div className="flex items-center justify-between mb-8 sticky top-0 z-50 bg-white py-2">
-        <Title level={3} className="!mb-0">
-          Thêm sản phẩm mới
-        </Title>
+        {!props.hiddenTitle && (
+          <Title level={3} className="!mb-0">
+            Thêm sản phẩm mới
+          </Title>
+        )}
         <Text type="danger" strong>
           {Object.keys(errors).length !== 0 &&
             "Hãy hoàn thiện thông tin cần thiết trước khi lưu!"}
         </Text>
         <Space>
-          <Button
-            onClick={() => {
-              router.push("/shop-management/products");
-            }}
-          >
-            Quay lại
-          </Button>
+          {!props.isEdit && (
+            <Button
+              onClick={() => {
+                router.push("/shop-management/products");
+              }}
+            >
+              Quay lại
+            </Button>
+          )}
           <Button
             type="primary"
             onClick={handleSubmit(onSubmit)}
             icon={<SaveOutlined />}
             disabled={
-              !isValid || createAProduct.isPending || uploadImage.data.isPending
+              !isValid ||
+              createAProduct.isPending ||
+              uploadImage.data.isPending ||
+              updateProduct.isPending
             }
-            loading={createAProduct.isPending || uploadImage.data.isPending}
+            loading={
+              createAProduct.isPending ||
+              uploadImage.data.isPending ||
+              updateProduct.isPending
+            }
           >
             Lưu sản phẩm
           </Button>
@@ -325,6 +390,22 @@ const CreateANewProduct = () => {
             </div>
             <div className="md:col-span-2">
               <Controller
+                name={`stock`}
+                control={control}
+                rules={{ required: "Vui lòng nhập số lượng", min: 0 }}
+                render={({ field }) => (
+                  <Form.Item
+                    label="Số lượng"
+                    validateStatus={errors?.stock ? "error" : ""}
+                    help={errors.stock?.message}
+                    required
+                    className="mb-0"
+                  >
+                    <InputNumber {...field} className="w-full" min={0} />
+                  </Form.Item>
+                )}
+              />
+              <Controller
                 name="status"
                 control={control}
                 render={({ field: { value, onChange } }) => (
@@ -380,7 +461,7 @@ const CreateANewProduct = () => {
               {mainImages.map((image, index) => (
                 <div key={image.uid} className="relative group">
                   <img
-                    src={image.thumbUrl}
+                    src={image.url}
                     alt={`Product ${index + 1}`}
                     className="w-full aspect-square object-cover rounded-lg"
                   />
@@ -405,14 +486,15 @@ const CreateANewProduct = () => {
                   onChange={(e) => {
                     const files = Array.from(e.target.files || []);
                     const newImages = files.map((file) => ({
-                      uid: Math.random().toString(),
+                      uid: `${file.name}-${Date.now()}`,
                       name: file.name,
                       status: "done",
                       url: URL.createObjectURL(file),
                       thumbUrl: URL.createObjectURL(file),
                       originFileObj: file,
-                    })) as any;
+                    })) as UploadFile[];
                     setMainImages([...mainImages, ...newImages]);
+                    e.target.value = "";
                   }}
                 />
                 <PlusOutlined className="text-2xl text-gray-400" />
@@ -446,7 +528,7 @@ const CreateANewProduct = () => {
                     sku: generateSKU(`PROD-V${fields.length + 1}`),
                     status: Status.active,
                     attributes: [],
-                    image: 0,
+                    imageIndex: 0,
                   })
                 }
                 icon={<PlusOutlined />}
@@ -480,24 +562,26 @@ const CreateANewProduct = () => {
                           return (
                             <Controller
                               key={image.uid}
-                              name={`variants.${index}.image`}
+                              name={`variants.${index}.imageIndex`}
                               control={control}
-                              render={({ field: { value, onChange } }) => (
-                                <div
-                                  className={`relative cursor-pointer border-1 rounded-lg overflow-hidden ${
-                                    value === idx
-                                      ? "border-[var(--primary)]"
-                                      : "border-[#d9d9d9]"
-                                  }`}
-                                  onClick={() => onChange(idx)}
-                                >
-                                  <img
-                                    src={image.thumbUrl}
-                                    alt={`Variant ${idx + 1}`}
-                                    className="w-20 h-20 object-cover"
-                                  />
-                                </div>
-                              )}
+                              render={({ field: { value, onChange } }) => {
+                                return (
+                                  <div
+                                    className={`relative cursor-pointer border-2 rounded-lg overflow-hidden ${
+                                      value === idx
+                                        ? "border-[var(--primary)]"
+                                        : "border-[#d9d9d9]"
+                                    }`}
+                                    onClick={() => onChange(idx)}
+                                  >
+                                    <img
+                                      src={image.thumbUrl}
+                                      alt={`Variant ${idx + 1}`}
+                                      className="w-20 h-20 object-cover"
+                                    />
+                                  </div>
+                                );
+                              }}
                             />
                           );
                         })}
@@ -736,4 +820,4 @@ const CreateANewProduct = () => {
   );
 };
 
-export default CreateANewProduct;
+export default FormSaveAProduct;

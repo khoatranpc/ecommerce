@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from "react";
+import { ColumnType } from "antd/es/table";
 import { Table, Space, Typography, Tag, Tooltip, Button, Image } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import EmptyData from "@/src/components/EmptyData";
 import { IObj } from "@/src/types";
 
@@ -30,7 +31,7 @@ const ProductTable = ({
   onCreateNew,
 }: ProductTableProps) => {
   const columns = useMemo(
-    () => [
+    (): ColumnType[] => [
       {
         title: "Sản phẩm",
         key: "product",
@@ -47,7 +48,8 @@ const ProductTable = ({
             />
             <div>
               <Text strong className="block">
-                {record.name}
+                {record.name}{" "}
+                <small>({record.variants?.length} phân loại)</small>
               </Text>
               <Text type="secondary">SKU: {record.sku}</Text>
             </div>
@@ -58,18 +60,30 @@ const ProductTable = ({
         title: "Giá bán",
         key: "price",
         width: 150,
-        render: (record: IObj) => (
-          <div>
-            <Text strong className="text-[var(--primary)] block">
-              {record.price?.toLocaleString()}₫
-            </Text>
-            {record.originalPrice > record.price && (
-              <Text delete type="secondary" className="text-sm">
-                {record.originalPrice?.toLocaleString()}₫
+        render: (record: IObj) => {
+          const mapListPriceOfProduct = [
+            Number(record.price) ?? 0,
+            ...(record.variants as IObj[]).map(
+              (item) => Number(item.price) ?? 0
+            ),
+          ].sort((a, b) => a - b);
+          return (
+            <div className="flex gap-2 items-center">
+              <Text strong className="text-[var(--primary)] block">
+                {mapListPriceOfProduct[0]?.toLocaleString()} ₫
               </Text>
-            )}
-          </div>
-        ),
+              {mapListPriceOfProduct.length > 1 && (
+                <span className="text-[1rem]">~</span>
+              )}
+              <Text strong className="text-[var(--primary)] block">
+                {mapListPriceOfProduct[
+                  mapListPriceOfProduct.length - 1
+                ].toLocaleString()}{" "}
+                ₫
+              </Text>
+            </div>
+          );
+        },
       },
       {
         title: "Tồn kho",
@@ -116,10 +130,10 @@ const ProductTable = ({
         width: 120,
         render: (_: any, record: IObj) => (
           <Space>
-            <Tooltip title="Chỉnh sửa">
+            <Tooltip title="Xem chi tiết">
               <Button
                 type="text"
-                icon={<EditOutlined />}
+                icon={<EyeOutlined />}
                 onClick={() => onEdit?.(record)}
               />
             </Tooltip>
