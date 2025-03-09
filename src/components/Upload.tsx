@@ -10,7 +10,7 @@ const UploadImg = (props: Props) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   return (
     <Upload
-      action={"http://localhost:4000/upload/single"}
+      action={`${process.env.NEXT_PUBLIC_SERVER_API}/upload/single`}
       listType="picture-card"
       onRemove={(file) => {
         if (fileList.length) return true;
