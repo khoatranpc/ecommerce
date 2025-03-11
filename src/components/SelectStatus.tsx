@@ -1,14 +1,22 @@
 import { Select, SelectProps } from "antd";
 import React from "react";
-import { mapStatusToStatusProductString, Status } from "../types/enum";
+import {
+  mapStatusToStatusProductString,
+  mapStatusToString,
+  Status,
+} from "../types/enum";
 
-interface Props extends SelectProps {}
+interface Props extends SelectProps {
+  isNormalContentStatus?: boolean;
+}
 
 const SelectStatus = (props: Props) => {
   const options = Object.keys(Status).map((item) => {
     return {
       value: item,
-      label: mapStatusToStatusProductString[item as Status],
+      label: !props.isNormalContentStatus
+        ? mapStatusToStatusProductString[item as Status]
+        : mapStatusToString[item as Status],
     };
   });
   return (

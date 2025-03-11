@@ -4,6 +4,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider } from "antd";
 import dynamic from "next/dynamic";
 import Loading from "@/src/components/Loading";
+import 'react-quill-new/dist/quill.snow.css';
 import "./globals.scss";
 
 const geistSans = Geist({

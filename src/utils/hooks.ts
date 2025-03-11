@@ -29,6 +29,11 @@ import {
   queryProducts,
   queryUpdateProduct,
 } from "../store/reducers/product";
+import {
+  clearCreateAPost,
+  queryCreateAPost,
+  queryGetOnePost,
+} from "../store/reducers/post";
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
@@ -194,4 +199,11 @@ export const useUpdateProduct = createHook(
   "updateProduct",
   queryUpdateProduct,
   clearUpdateProduct
+);
+
+export const usePostDetail = createHook("postDetail", queryGetOnePost);
+export const useCreateAPost = createHook(
+  "createAPost",
+  queryCreateAPost,
+  clearCreateAPost
 );

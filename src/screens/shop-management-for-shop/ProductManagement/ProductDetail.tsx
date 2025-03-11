@@ -23,6 +23,8 @@ import {
   Status,
 } from "@/src/types/enum";
 import DrawerUpdateProduct from "./DrawerUpdateProduct";
+import ProductPost from "./ProductPost";
+import RateAndComment from "./RateAndComment";
 
 const { Title } = Typography;
 
@@ -172,7 +174,14 @@ const ProductDetailInfo = () => {
       <Card title="Phân loại sản phẩm">
         <Table
           columns={variantColumns}
-          dataSource={getProductDetail?.variants}
+          dataSource={
+            (getProductDetail?.variants as IObj[])?.map((item) => {
+              return {
+                ...item,
+                key: item._id as string,
+              };
+            }) ?? []
+          }
           rowKey="id"
           pagination={false}
         />
@@ -183,15 +192,18 @@ const ProductDetailInfo = () => {
 enum Tab {
   INFO = "INFO",
   BLOG = "BLOG",
+  RATE_COMMENT = "RATE_COMMENT",
 }
 const tabContent: Record<Tab, React.ReactNode> = {
-  BLOG: <></>,
+  BLOG: <ProductPost />,
   INFO: <ProductDetailInfo />,
+  RATE_COMMENT: <RateAndComment />,
 };
 const ProductDetail = () => {
   const items: TabsProps["items"] = [
     { key: Tab.INFO, label: "Thông tin" },
     { key: Tab.BLOG, label: "Bài viết mô tả" },
+    { key: Tab.RATE_COMMENT, label: "Bình luận & đánh giá" },
   ];
   const [tab, setTab] = useState<Tab>(Tab.INFO);
   const onChange = (key: string) => {

@@ -353,3 +353,60 @@ export const queryUpdateProductById = `#graphql
         }
     }
 `;
+
+export const queryGetOnePost = (fields?: string) => {
+  return `#graphql
+    query GetOnePost ($input: GetOnePostInput) {
+        getOnePost(input: $input ) {
+            ${
+              fields ??
+              `
+                _id
+                title
+                slug
+                description
+                content
+                tags
+                banner
+                status
+                views
+                createdAt
+                updatedAt
+                categories {
+                    _id
+                    createdAt
+                    updatedAt
+                    status
+                }
+                product {
+                    _id
+                }
+            `
+            }
+            
+        }
+    }
+`;
+};
+
+export const queryCreateAPost = `#graphql
+    mutation CreateAPost($input: CreateAPostInput) {
+        createAPost (input: $input) {
+            _id
+            title
+            slug
+            description
+            content
+            author
+            tags
+            categories
+            images
+            product
+            banner
+            status
+            views
+            createdAt
+            updatedAt
+        }
+    }
+`;
