@@ -1,10 +1,14 @@
 "use client";
-import { Badge, Button, Image, Layout, Space, Typography } from "antd";
 import {
-  MailOutlined,
-  PhoneOutlined,
-  EnvironmentOutlined,
-} from "@ant-design/icons";
+  Badge,
+  Button,
+  Dropdown,
+  Image,
+  Layout,
+  Space,
+  Tooltip,
+  Typography,
+} from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
 import {
   BellOutlined,
@@ -20,6 +24,11 @@ import {
 } from "@ant-design/icons";
 import React from "react";
 import Search from "antd/es/input/Search";
+import { useCheckCurrentRoleUser, useCurrentUser } from "../utils/hooks";
+import { IObj } from "../types";
+import { Role } from "../types/enum";
+import QuickSearch from "../components/customer/QuickSearch";
+import ChatBox from "../components/customer/ChatBox";
 
 const { Title, Text } = Typography;
 
@@ -28,6 +37,9 @@ interface Props {
 }
 
 const CustomerLayout = (props: Props) => {
+  useCheckCurrentRoleUser(Role.customer);
+  const currentUser = useCurrentUser();
+  const getCurrentUser = (currentUser.data?.getCurrentUser as IObj) ?? {};
   return (
     <Layout className="min-h-screen">
       <Header className="!bg-white backdrop-blur-sm px-0 fixed w-full z-50 !h-fit !p-0">
@@ -61,20 +73,7 @@ const CustomerLayout = (props: Props) => {
                   </span>
                 </Title>
               </div>
-              <div className="flex-1 max-w-3xl flex items-center">
-                <Search
-                  placeholder="Tìm kiếm sản phẩm..."
-                  size="large"
-                  enterButton={
-                    <Button
-                      type="primary"
-                      className="bg-gradient-to-r from-indigo-600 to-purple-600 border-none hover:opacity-90"
-                    >
-                      <SearchOutlined />
-                    </Button>
-                  }
-                />
-              </div>
+              <QuickSearch />
 
               <div className="flex items-center gap-6 ml-8">
                 <Badge count={3} color="#4F46E5">
@@ -92,20 +91,46 @@ const CustomerLayout = (props: Props) => {
                     <ShoppingCartOutlined className="text-xl text-gray-600 group-hover:text-indigo-600 transition-colors" />
                   </button>
                 </Badge>
-                <Button
-                  type="primary"
-                  icon={<UserOutlined />}
-                  size="large"
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 border-none hover:opacity-90 ml-2"
+                <Dropdown
+                  openClassName="!bg-red"
+                  arrow
+                  menu={{
+                    items: [
+                      {
+                        key: "Info",
+                        label: "Thông tin cá nhân",
+                      },
+                      {
+                        key: "Purchase",
+                        label: "Đơn hàng của tôi",
+                      },
+                      {
+                        key: "Logout",
+                        label: "Đăng xuất",
+                      },
+                    ],
+                  }}
                 >
-                  <span className="hidden sm:inline ml-1">Đăng nhập</span>
-                </Button>
+                  <Button
+                    type="primary"
+                    icon={<UserOutlined />}
+                    size="large"
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 border-none hover:opacity-90 ml-2"
+                  >
+                    <span className="hidden sm:inline ml-1">
+                      {getCurrentUser.name ?? "Đăng nhập"}
+                    </span>
+                  </Button>
+                </Dropdown>
               </div>
             </div>
           </div>
         </div>
       </Header>
-      <Content className="pt-4">{props.children}</Content>
+      <Content className="pt-4">
+        {props.children}
+        <ChatBox />
+      </Content>
 
       <Footer className="!bg-[var(--primary)] text-white">
         <div className="max-w-7xl mx-auto px-4">

@@ -18,7 +18,8 @@ import {
   Divider,
 } from "antd";
 import { ThunderboltOutlined, CrownOutlined } from "@ant-design/icons";
-import ProductCartSale from "@/src/components/ProductCartSale";
+import ProductCartSale from "@/src/components/customer/intro-page/ProductCartSale";
+import ProductCardCustomer from "@/src/components/customer/ProductCardCustomer";
 const { Title, Text, Paragraph } = Typography;
 const ShoppingIntro = () => {
   const banners = [
@@ -182,9 +183,7 @@ const ShoppingIntro = () => {
       },
       featured: ["Áo polo", "Quần jean", "Giày thể thao"],
     },
-    // Add more categories...
   ];
-  // Add this to your existing data constants
   const topShops = [
     {
       id: 1,
@@ -220,6 +219,128 @@ const ShoppingIntro = () => {
       ],
       achievements: ["Top 10 Shop", "Bán chạy nhất tháng", "Phản hồi tốt"],
     },
+  ];
+
+  // Add this new data constant at the top with other constants
+  const featuredProducts = [
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    {
+      id: 1,
+      name: "MacBook Pro M3 Max",
+      price: 69900000,
+      rating: 4.9,
+      reviews: 128,
+      image: "/static/macbook.jpg",
+      tags: ["Mới", "Bán chạy"],
+      shop: {
+        name: "Apple Store",
+        isOfficial: true,
+      },
+    },
+    // Add more products...
   ];
 
   return (
@@ -287,6 +408,31 @@ const ShoppingIntro = () => {
               return <ProductCartSale key={idx} />;
             })}
           </Carousel>
+        </div>
+      </div>
+      <div className="py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <Title level={2} className="!mb-0">
+              Sản Phẩm Nổi Bật
+            </Title>
+            <Space>
+              <Button type="text">Phổ biến</Button>
+              <Button type="text">Mới nhất</Button>
+              <Button type="text">Bán chạy</Button>
+              <Button type="primary">Xem tất cả</Button>
+            </Space>
+          </div>
+
+          <div className="grid grid-cols-5 gap-4">
+            {featuredProducts.map((product) => (
+              <div
+                key={product.id}
+              >
+                <ProductCardCustomer />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <div className="bg-gray-50 py-12">

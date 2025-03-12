@@ -14,8 +14,7 @@ import { ComponentProps } from "../types";
 import Image from "next/image";
 import Link from "next/link";
 import { ItemType } from "antd/es/menu/interface";
-import { useCheckCurrentRoleUser, useCurrentUser } from "../utils/hooks";
-import { redirect } from "next/navigation";
+import { useCheckCurrentRoleUser } from "../utils/hooks";
 import { Role } from "../types/enum";
 
 const { Header, Sider, Content } = Layout;

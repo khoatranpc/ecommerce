@@ -5,23 +5,15 @@ import {
   EyeOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
+import { IObj } from "../../types";
 
-export interface IProduct {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  status: "in_stock" | "out_of_stock" | "low_stock";
-  quantity: number;
-}
 const { Text } = Typography;
 const { Meta } = Card;
-const ProductCard = ({ product }: { product: IProduct }) => {
+const ProductCard = ({ product }: { product: IObj }) => {
   return (
     <Card
       hoverable
-      className="h-[350px] flex flex-col"
+      className="h-[350px] flex flex-col "
       cover={
         <Image
           src={product.image}

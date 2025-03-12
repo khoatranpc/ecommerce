@@ -23,7 +23,7 @@ import {
   EyeOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
-import ProductCard, { IProduct } from "@/src/components/ProductCard";
+import ProductCard, { IProduct } from "@/src/components/management/ProductCard";
 
 const { Title, Text } = Typography;
 const { Option } = Select;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, Card, Image, Space, Typography } from "antd";
 const { Title, Text } = Typography;
-import { useCountDown } from "../utils/hooks";
+import { useCountDown } from "../../../utils/hooks";
 
 const ProductCartSale = () => {
   const [timeLeft] = useCountDown(new Date());

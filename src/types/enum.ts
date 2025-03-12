@@ -24,10 +24,15 @@ export const mapStatusToStatusProductString: Record<Status, string> = {
   pending: "Đợi mở",
 };
 
-
 export const mapStatusProductToColor: Record<Status, string> = {
   active: "!bg-green-50 !text-green-600",
   deleted: "!bg-red-50 !text-red-600",
   inactive: "!bg-gray-50 !text-gray-600",
   pending: "!bg-yellow-50 !text-yellow-600",
+};
+
+export const mapRoleToString: Record<Role, string> = {
+  admin: "Admin",
+  customer: "Người dùng",
+  shop: "Cửa hàng",
 };

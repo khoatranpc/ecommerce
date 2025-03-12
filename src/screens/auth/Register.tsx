@@ -1,14 +1,21 @@
 "use client";
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Input, Button, Typography, DatePicker, message, Alert } from "antd";
+import {
+  Input,
+  Button,
+  Typography,
+  DatePicker,
+  message,
+  Alert,
+  Radio,
+  Form,
+} from "antd";
 import {
   UserOutlined,
   MailOutlined,
-  HomeOutlined,
   PhoneOutlined,
   CheckCircleFilled,
-  CloseOutlined,
   CloseCircleFilled,
 } from "@ant-design/icons";
 import { motion } from "framer-motion";
@@ -16,6 +23,7 @@ import TextArea from "antd/es/input/TextArea";
 import { IObj } from "@/src/types";
 import { useUserRegister } from "@/src/utils/hooks";
 import { queryUserRegister } from "@/src/utils/graphql-queries";
+import { mapRoleToString, Role } from "@/src/types/enum";
 
 const { Title, Text } = Typography;
 
@@ -27,6 +35,7 @@ interface RegisterFormInputs {
   address: string;
   password: string;
   confirmPassword: string;
+  role: Role;
 }
 
 const Register = () => {
@@ -35,7 +44,11 @@ const Register = () => {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<RegisterFormInputs>();
+  } = useForm<RegisterFormInputs>({
+    defaultValues: {
+      role: Role.customer,
+    },
+  });
   const password = watch("password");
 
   const userRegister = useUserRegister();
@@ -269,6 +282,28 @@ const Register = () => {
                   )}
                 </div>
               )}
+            />
+          </div>
+          <div>
+            <Controller
+              name="role"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <Form.Item
+                    label={<p className="text-sm">Tôi là:</p>}
+                    layout="vertical"
+                  >
+                    <Radio.Group {...field} block optionType="button">
+                      {[Role.customer, Role.shop].map((item: Role) => {
+                        return (
+                          <Radio value={item}>{mapRoleToString[item]}</Radio>
+                        );
+                      })}
+                    </Radio.Group>
+                  </Form.Item>
+                );
+              }}
             />
           </div>
           {userRegister.isFetched && (

@@ -1,11 +1,9 @@
 "use client";
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Loading from "@/src/components/Loading";
-import {
-  queryGetCurrentUser,
-} from "@/src/utils/graphql-queries";
+import { queryGetCurrentUser } from "@/src/utils/graphql-queries";
 import { useCurrentUser } from "@/src/utils/hooks";
 import { Role } from "../types/enum";
 
@@ -47,6 +45,9 @@ export default function CheckAuth() {
                   if (callBackUrl && callBackUrl.includes("/admin")) {
                     router.push(callBackUrl);
                   } else router.push("/admin");
+                }
+                if (dataSuccess.getCurrentUser.role === Role.customer) {
+                  router.push("/shopping");
                 }
               }
             }
