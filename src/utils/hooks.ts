@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { redirect } from "next/navigation";
 import { AppDispatch, RootState } from "../store";
@@ -207,3 +207,46 @@ export const useCreateAPost = createHook(
   queryCreateAPost,
   clearCreateAPost
 );
+
+export const useCountDown = (startTime: Date) => {
+  const [timeLeft, setTimeLeft] = useState({
+    hours: startTime.getHours(),
+    minutes: 0,
+    seconds: 0,
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.hours === 0 && prev.minutes === 0 && prev.seconds === 0) {
+          clearInterval(timer);
+          return prev;
+        }
+
+        let newHours = prev.hours;
+        let newMinutes = prev.minutes;
+        let newSeconds = prev.seconds;
+
+        if (newSeconds > 0) {
+          newSeconds--;
+        } else if (newMinutes > 0) {
+          newMinutes--;
+          newSeconds = 59;
+        } else if (newHours > 0) {
+          newHours--;
+          newMinutes = 59;
+          newSeconds = 59;
+        }
+
+        return {
+          hours: newHours,
+          minutes: newMinutes,
+          seconds: newSeconds,
+        };
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+  return [timeLeft];
+};
