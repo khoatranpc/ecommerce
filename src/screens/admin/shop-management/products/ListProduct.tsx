@@ -23,7 +23,7 @@ import {
   EyeOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
-import ProductCard, { IProduct } from "@/src/components/management/ProductCard";
+import ProductCard from "@/src/components/management/ProductCard";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -36,7 +36,7 @@ const ListProduct = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Mock data
-  const products: IProduct[] = Array.from({ length: 50 }, (_, i) => ({
+  const products: any[] = Array.from({ length: 50 }, (_, i) => ({
     id: i.toString(),
     name: `iPhone 14 Pro Max 256GB Chính hãng VN/A ${i + 1}`,
     price: Math.floor(Math.random() * 1000000) + 100000,
