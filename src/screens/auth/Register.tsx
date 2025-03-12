@@ -297,7 +297,7 @@ const Register = () => {
                     <Radio.Group {...field} block optionType="button">
                       {[Role.customer, Role.shop].map((item: Role) => {
                         return (
-                          <Radio value={item}>{mapRoleToString[item]}</Radio>
+                          <Radio key={item} value={item}>{mapRoleToString[item]}</Radio>
                         );
                       })}
                     </Radio.Group>
