@@ -34,6 +34,11 @@ import {
   queryCreateAPost,
   queryGetOnePost,
 } from "../store/reducers/post";
+interface window {
+  localStorage: Storage;
+}
+
+declare const window: Storage;
 
 export interface TypeReturnHook extends IReducerStore {
   query: (
@@ -149,16 +154,18 @@ export const useRequestRestApi = () => {
 };
 export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
   const currentUser = useCurrentUser();
-  if (!currentUser.data?.getCurrentUser) {
-    setLocalStorage("callBackUrl", window.location.href);
-    return redirect("/");
-  } else {
-    if (
-      currentUser.data!.getCurrentUser &&
-      currentUser.data!.getCurrentUser.role !== roleForCheck
-    ) {
-      removeLocalStorage("callBackUrl");
+  if (typeof window !== "undefined") {
+    if (!currentUser.data?.getCurrentUser) {
+      setLocalStorage("callBackUrl", window.location.href);
       return redirect("/");
+    } else {
+      if (
+        currentUser.data!.getCurrentUser &&
+        currentUser.data!.getCurrentUser.role !== roleForCheck
+      ) {
+        removeLocalStorage("callBackUrl");
+        return redirect("/");
+      }
     }
   }
 };

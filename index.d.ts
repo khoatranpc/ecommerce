@@ -3,3 +3,4 @@ interface Window {
 }
 
 declare const localStorage: Storage;
+declare const window: Window;
