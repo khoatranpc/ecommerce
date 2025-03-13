@@ -18,8 +18,10 @@ export default function CheckAuth() {
     if (isClient) {
       const access_token = localStorage.getItem("access_token");
       const callBackUrl = localStorage.getItem("callBackUrl");
-      if (!access_token) redirect("/introduction");
-      if (!currentUser.data?.getCurrentUser) {
+      if (!access_token) {
+        redirect("/shopping");
+      }
+      if (!currentUser.data?.getCurrentUser && access_token) {
         currentUser.query(
           {
             query: queryGetCurrentUser,

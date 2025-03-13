@@ -10,6 +10,7 @@ import {
   Typography,
 } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
+import { useRouter } from "next/navigation";
 import {
   BellOutlined,
   HeartOutlined,
@@ -23,7 +24,6 @@ import {
   YoutubeOutlined,
 } from "@ant-design/icons";
 import React from "react";
-import Search from "antd/es/input/Search";
 import { useCheckCurrentRoleUser, useCurrentUser } from "../utils/hooks";
 import { IObj } from "../types";
 import { Role } from "../types/enum";
@@ -39,7 +39,8 @@ interface Props {
 const CustomerLayout = (props: Props) => {
   useCheckCurrentRoleUser(Role.customer);
   const currentUser = useCurrentUser();
-  const getCurrentUser = (currentUser.data?.getCurrentUser as IObj) ?? {};
+  const getCurrentUser = currentUser.data?.getCurrentUser as IObj;
+  const router = useRouter();
   return (
     <Layout className="min-h-screen">
       <Header className="!bg-white backdrop-blur-sm px-0 fixed w-full z-50 !h-fit !p-0">
@@ -91,37 +92,55 @@ const CustomerLayout = (props: Props) => {
                     <ShoppingCartOutlined className="text-xl text-gray-600 group-hover:text-indigo-600 transition-colors" />
                   </button>
                 </Badge>
-                <Dropdown
-                  openClassName="!bg-red"
-                  arrow
-                  menu={{
-                    items: [
-                      {
-                        key: "Info",
-                        label: "Thông tin cá nhân",
-                      },
-                      {
-                        key: "Purchase",
-                        label: "Đơn hàng của tôi",
-                      },
-                      {
-                        key: "Logout",
-                        label: "Đăng xuất",
-                      },
-                    ],
-                  }}
-                >
+                {getCurrentUser ? (
+                  <Dropdown
+                    openClassName="!bg-red"
+                    arrow
+                    menu={{
+                      items: [
+                        {
+                          key: "Info",
+                          label: "Thông tin cá nhân",
+                        },
+                        {
+                          key: "Purchase",
+                          label: "Đơn hàng của tôi",
+                        },
+                        {
+                          key: "Logout",
+                          label: "Đăng xuất",
+                          onClick() {
+                            localStorage.removeItem("access_token");
+                            window.location.assign("/shopping");
+                          },
+                        },
+                      ],
+                    }}
+                  >
+                    <Button
+                      type="primary"
+                      icon={<UserOutlined />}
+                      size="large"
+                      className="bg-gradient-to-r from-indigo-600 to-purple-600 border-none hover:opacity-90 ml-2"
+                    >
+                      <span className="hidden sm:inline ml-1">
+                        {getCurrentUser.name ?? "User"}
+                      </span>
+                    </Button>
+                  </Dropdown>
+                ) : (
                   <Button
                     type="primary"
                     icon={<UserOutlined />}
                     size="large"
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 border-none hover:opacity-90 ml-2"
+                    onClick={() => {
+                      router.push("/login");
+                    }}
                   >
-                    <span className="hidden sm:inline ml-1">
-                      {getCurrentUser.name ?? "Đăng nhập"}
-                    </span>
+                    <span className="hidden sm:inline ml-1">{"Đăng nhập"}</span>
                   </Button>
-                </Dropdown>
+                )}
               </div>
             </div>
           </div>

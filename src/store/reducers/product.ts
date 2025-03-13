@@ -11,6 +11,9 @@ export const clearCreateAProduct = createAProduct.actions.clear;
 
 export const queryProducts = createQueryThunk("queryProducts");
 export const products = createSliceReducer("products", [queryProducts]);
+export const quickSearchProducts = createSliceReducer("quickSearchProducts", [
+  queryProducts,
+]);
 
 export const queryProductBySlug = createQueryThunk("queryProductBySlug");
 export const productDetail = createSliceReducer("productDetail", [

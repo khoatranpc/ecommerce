@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AppDispatch, RootState } from "../store";
 import { IObj, IPayloadGraphql, IReducerStore } from "../types";
 import {
+  clearUser,
   queryGetCurrentUser,
   queryUserRegister,
   queryVerifyAccount,
@@ -154,14 +155,19 @@ export const useRequestRestApi = () => {
 };
 export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
   const currentUser = useCurrentUser();
+  const callBackUrl = localStorage.getItem("callBackUrl");
   if (typeof window !== "undefined") {
-    if (!currentUser.data?.getCurrentUser) {
+    if (
+      !currentUser.data?.getCurrentUser &&
+      (callBackUrl?.includes("/shop-management") ||
+        callBackUrl?.includes("/admin"))
+    ) {
       setLocalStorage("callBackUrl", window.location.href);
       return redirect("/");
     } else {
       if (
-        currentUser.data!.getCurrentUser &&
-        currentUser.data!.getCurrentUser.role !== roleForCheck
+        currentUser.data?.getCurrentUser &&
+        currentUser.data?.getCurrentUser?.role !== roleForCheck
       ) {
         removeLocalStorage("callBackUrl");
         return redirect("/");
@@ -171,7 +177,11 @@ export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
 };
 
 export const useVerifyAccount = createHook("verifyAccount", queryVerifyAccount);
-export const useCurrentUser = createHook("currentUser", queryGetCurrentUser);
+export const useCurrentUser = createHook(
+  "currentUser",
+  queryGetCurrentUser,
+  clearUser
+);
 export const useUserRegister = createHook("userRegister", queryUserRegister);
 export const useGetShopDetailByOwnerId = createHook(
   "shopDetailInfo",
@@ -257,3 +267,8 @@ export const useCountDown = (startTime: Date) => {
   }, []);
   return [timeLeft];
 };
+
+export const useQuickSearchProducts = createHook(
+  "quickSearchProducts",
+  queryProducts
+);

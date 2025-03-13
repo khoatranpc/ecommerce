@@ -3,7 +3,13 @@ import counter from "./reducers/example";
 import { verifyAccount, currentUser, userRegister } from "./reducers/user";
 import { createShopInfo, shopDetailInfo } from "./reducers/shop";
 import { categories, createCategory } from "./reducers/category";
-import { createAProduct, productDetail, products, updateProduct } from "./reducers/product";
+import {
+  createAProduct,
+  productDetail,
+  products,
+  quickSearchProducts,
+  updateProduct,
+} from "./reducers/product";
 import { createAPost, postDetail } from "./reducers/post";
 
 export const store = configureStore({
@@ -18,6 +24,7 @@ export const store = configureStore({
     createCategory: createCategory.reducer,
     createAProduct: createAProduct.reducer,
     products: products.reducer,
+    quickSearchProducts: quickSearchProducts.reducer,
     productDetail: productDetail.reducer,
     updateProduct: updateProduct.reducer,
     postDetail: postDetail.reducer,
