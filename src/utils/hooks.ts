@@ -10,6 +10,7 @@ import {
   queryVerifyAccount,
 } from "../store/reducers/user";
 import { Role } from "../types/enum";
+import { queryGetCurrentUser as queryStringGetCurrentUser } from "./graphql-queries";
 import {
   queryCreateShopInfo,
   queryShopDetailInfoByOwnerId,
@@ -155,8 +156,22 @@ export const useRequestRestApi = () => {
 };
 export const useCheckCurrentRoleUser = (roleForCheck: Role) => {
   const currentUser = useCurrentUser();
-  const callBackUrl = localStorage.getItem("callBackUrl");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !currentUser.data) {
+      const access_token = localStorage.getItem("access_token");
+      currentUser.query({
+        query: queryStringGetCurrentUser,
+        variables: {
+          input: {
+            access_token: access_token,
+          },
+        },
+      });
+    }
+  }, []);
   if (typeof window !== "undefined") {
+    const callBackUrl = localStorage.getItem("callBackUrl");
     if (
       !currentUser.data?.getCurrentUser &&
       (callBackUrl?.includes("/shop-management") ||

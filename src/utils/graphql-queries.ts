@@ -320,6 +320,7 @@ export const queryGetProductBySlug = `#graphql
                     _id
                     name
                 }
+                logo
             }
             sku
             slug

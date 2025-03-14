@@ -23,7 +23,7 @@ import {
   InstagramOutlined,
   YoutubeOutlined,
 } from "@ant-design/icons";
-import React from "react";
+import React, { useEffect } from "react";
 import { useCheckCurrentRoleUser, useCurrentUser } from "../utils/hooks";
 import { IObj } from "../types";
 import { Role } from "../types/enum";
@@ -43,7 +43,7 @@ const CustomerLayout = (props: Props) => {
   const router = useRouter();
   return (
     <Layout className="min-h-screen">
-      <Header className="!bg-white backdrop-blur-sm px-0 fixed w-full z-50 !h-fit !p-0">
+      <Header className="!bg-white backdrop-blur-sm sticky top-0 px-0 w-full z-50 !h-fit !p-0">
         <div className="bg-[var(--primary)]">
           <div className="max-w-7xl mx-auto px-4 py-1.5">
             <div className="flex justify-end items-center gap-8 text-white/90 text-sm">
@@ -146,7 +146,7 @@ const CustomerLayout = (props: Props) => {
           </div>
         </div>
       </Header>
-      <Content className="pt-4">
+      <Content className="">
         {props.children}
         <ChatBox />
       </Content>

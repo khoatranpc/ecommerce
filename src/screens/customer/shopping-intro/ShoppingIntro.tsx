@@ -425,10 +425,8 @@ const ShoppingIntro = () => {
           </div>
 
           <div className="grid grid-cols-5 gap-4">
-            {featuredProducts.map((product) => (
-              <div
-                key={product.id}
-              >
+            {featuredProducts.map((product, idx) => (
+              <div key={idx}>
                 <ProductCardCustomer />
               </div>
             ))}
