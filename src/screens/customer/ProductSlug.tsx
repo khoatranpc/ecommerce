@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -78,25 +78,93 @@ const ProductSlug = () => {
   const currentProduct = useGetProductDetailBySlug();
   const getDataCurrentProduct =
     (currentProduct.data?.getProductBySlug as IObj) ?? {};
-  const getCategories = getDataCurrentProduct?.categories?.[0];
+  const getVariants =
+    (currentProduct.data?.getProductBySlug?.variants as IObj[]) ?? [];
+  const getOptions: IObj[] = getVariants.filter(
+    (variant) => (variant.attributes as IObj[]).length
+  );
+  const mapKeyOptions: IObj = {};
+  const mapOptionToObjectId: IObj = {};
+  getOptions
+    .map((variant: IObj) => {
+      mapOptionToObjectId[variant._id] = (variant.attributes as IObj[]).map(
+        (attr) => {
+          return {
+            key: attr.key.toLowerCase().trim(),
+            value: String(attr.value).toLowerCase().trim(),
+          };
+        }
+      );
+      return {
+        variantId: variant._id,
+        attributes: variant.attributes,
+      };
+    })
+    .forEach(
+      (opt: {
+        variantId: string;
+        attributes: { key: string; value: string }[];
+      }) => {
+        opt.attributes.forEach((optItem: { key: string; value: string }) => {
+          const getKey = String(optItem.key).trim().toLowerCase();
+          const newValue = {
+            varianId: opt.variantId,
+            attribute: optItem.value.toLowerCase(),
+          };
+          if (mapKeyOptions[getKey]) {
+            mapKeyOptions[getKey].push(newValue);
+          } else {
+            mapKeyOptions[getKey] = [newValue];
+          }
+        });
+      }
+    );
   const params = useParams();
-  useEffect(() => {
-    if (!currentProduct.isFetched) {
-      currentProduct.query({
-        query: queryGetProductBySlug,
-        variables: {
-          input: {
-            slug: params.slug,
-          },
-        },
+  const [keysSelected, setKeysSelected] = useState<IObj[]>([]);
+  const [selectedVariantId, setSelectedVariantId] = useState<string>("");
+  const variantsHasKey = useMemo(() => {
+    const variants = getVariants.filter((variant) => {
+      return (variant.attributes as IObj[]).find((attri) => {
+        return keysSelected.every((keySelected) => {
+          return (
+            String(keySelected.key).toLowerCase().trim() ===
+              String(attri.key).toLowerCase().trim() &&
+            String(keySelected.value).toLowerCase().trim() ===
+              String(attri.value).toLowerCase().trim()
+          );
+        });
       });
-    }
-  }, [currentProduct.data]);
+    });
+    return variants;
+  }, [keysSelected, getVariants]);
+  const lastIndexVariantSelected = useMemo(() => {
+    const mapKeysSelected = keysSelected
+      .map((obj) => JSON.stringify(obj))
+      .sort();
+    const getLastVariantSelect = Object.keys(mapOptionToObjectId).find(
+      (key: keyof typeof mapOptionToObjectId) => {
+        const sortList = mapOptionToObjectId[key]
+          .map((obj: IObj) => JSON.stringify(obj))
+          .sort();
+        return JSON.stringify(sortList) === JSON.stringify(mapKeysSelected);
+      }
+    );
+    return getLastVariantSelect;
+  }, [keysSelected]);
+  useEffect(() => {
+    currentProduct.query({
+      query: queryGetProductBySlug,
+      variables: {
+        input: {
+          slug: params.slug,
+        },
+      },
+    });
+  }, [params.slug]);
   return !currentProduct.isFetched || currentProduct.isPending ? (
     <ProductDetailLoading />
   ) : (
-    <div className="grid grid-cols-12 gap-8">
-      {/* Product Images */}
+    <div className="grid grid-cols-12 gap-8" key={params.slug as string}>
       <div className="col-span-5">
         <div className="sticky top-24">
           <Card className="overflow-hidden">
@@ -175,14 +243,148 @@ const ProductSlug = () => {
               {getDataCurrentProduct?.price?.toLocaleString()}₫
             </p>
             <div className="flex items-center gap-2 mt-2">
-              <Text delete className="text-gray-500">
-                {/* {mockProduct.originalPrice.toLocaleString()}₫ */}
-              </Text>
-              {/* <Tag color="red">-{mockProduct.discount}%</Tag> */}
+              <Text delete className="text-gray-500"></Text>
             </div>
           </div>
-
-          <div className="space-y-6">
+          <div className="space-y-4">
+            {Object.keys(mapKeyOptions).length > 0 ? (
+              <div className="space-y-6">
+                {Object.keys(mapKeyOptions).map(
+                  (key: keyof typeof mapKeyOptions) => {
+                    const uniqueValues: any = Array.from(
+                      new Set(
+                        mapKeyOptions[key].map((opt: IObj) => {
+                          return opt.attribute;
+                        })
+                      )
+                    );
+                    return (
+                      <div key={key} className="grid grid-cols-5">
+                        <Text
+                          strong
+                          className="min-w-[100px] capitalize !text-[0.8rem] col-span-1"
+                        >
+                          {key}:
+                        </Text>
+                        <div className="col-span-4">
+                          <Space size={[8, 16]} wrap>
+                            {uniqueValues.map((val: string, idx: number) => {
+                              const checkCurrentAttri = variantsHasKey.filter(
+                                (variant) => {
+                                  return (variant.attributes as IObj[]).find(
+                                    (attri) => {
+                                      return (
+                                        String(attri.key)
+                                          .toLowerCase()
+                                          .trim() === key &&
+                                        String(attri.value)
+                                          .toLowerCase()
+                                          .trim() === val
+                                      );
+                                    }
+                                  );
+                                }
+                              );
+                              const isSelected = keysSelected.find((item) => {
+                                return item.key === key && item.value === val;
+                              });
+                              return (
+                                <Button
+                                  key={idx}
+                                  size="large"
+                                  type={isSelected ? "primary" : "default"}
+                                  className={`min-w-[80px] capitalize hover:!text-[var(--primary)] hover:!border-[var(--primary)]`}
+                                  disabled={
+                                    isSelected
+                                      ? false
+                                      : !!keysSelected.length &&
+                                        !checkCurrentAttri.length
+                                  }
+                                  onClick={() => {
+                                    setKeysSelected((prev) => {
+                                      const existIndexKey = prev.findIndex(
+                                        (attribute) => {
+                                          return (
+                                            attribute.key === key &&
+                                            attribute.value === val
+                                          );
+                                        }
+                                      );
+                                      if (existIndexKey > -1)
+                                        prev.splice(existIndexKey, 1);
+                                      else
+                                        prev.push({
+                                          key,
+                                          value: val,
+                                        });
+                                      return [...prev];
+                                    });
+                                  }}
+                                >
+                                  {val}
+                                </Button>
+                              );
+                            })}
+                          </Space>
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="grid grid-cols-5">
+                  <Text
+                    strong
+                    className="min-w-[100px] capitalize !text-[0.8rem] col-span-1"
+                  >
+                    Loại:
+                  </Text>
+                  <div className="col-span-4 flex flex-wrap gap-4">
+                    {getVariants.map((variant) => {
+                      return (
+                        <Button
+                          key={variant._id}
+                          size="large"
+                          disabled={
+                            !!selectedVariantId &&
+                            selectedVariantId !== variant._id
+                          }
+                          type={
+                            selectedVariantId === variant._id
+                              ? "primary"
+                              : "default"
+                          }
+                          className={`min-w-[80px] capitalize hover:!text-[var(--primary)] hover:!border-[var(--primary)]`}
+                          onClick={() => {
+                            setSelectedVariantId((prev) => {
+                              if (prev === variant._id) {
+                                return "";
+                              }
+                              return variant._id;
+                            });
+                          }}
+                        >
+                          <Image
+                            src={
+                              (getDataCurrentProduct.images as string[])?.[
+                                variant.imageIndex as number
+                              ]
+                            }
+                            fallback="/static/fallback-image.png"
+                            className="!w-4"
+                          />
+                          <span>{variant.name}</span>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="space-y-6 mt-4">
             <div className="prose max-w-none">
               <Paragraph>{getDataCurrentProduct?.description}</Paragraph>
             </div>
@@ -202,6 +404,9 @@ const ProductSlug = () => {
                 size="large"
                 icon={<ShoppingCartOutlined />}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600"
+                disabled={
+                  lastIndexVariantSelected || selectedVariantId ? false : true
+                }
               >
                 Thêm vào giỏ hàng
               </Button>

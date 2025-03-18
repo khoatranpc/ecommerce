@@ -4,8 +4,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button, Image, Skeleton } from "antd";
 import Search from "antd/es/input/Search";
 import { SearchOutlined, ShopOutlined } from "@ant-design/icons";
-import { useQuickSearchProducts } from "@/src/utils/hooks";
-import { queryProducts } from "@/src/utils/graphql-queries";
+import { useGetProductDetailBySlug, useQuickSearchProducts } from "@/src/utils/hooks";
+import {
+  queryGetProductBySlug,
+  queryProducts,
+} from "@/src/utils/graphql-queries";
 import { IObj } from "@/src/types";
 import EmptyData from "../EmptyData";
 import { useRouter } from "next/navigation";
@@ -15,6 +18,7 @@ const QuickSearch = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const [value] = useDebounce(search, 500);
+  const currentProduct = useGetProductDetailBySlug();
   const quickSearch = useQuickSearchProducts();
   const router = useRouter();
   const getProducts = quickSearch.data?.getProducts?.data as IObj[];
@@ -97,6 +101,14 @@ const QuickSearch = () => {
                         key={product?._id ?? idx}
                         onClick={() => {
                           router.push(`/${product.slug}`);
+                          currentProduct.query({
+                            query: queryGetProductBySlug,
+                            variables: {
+                              input: {
+                                slug: product.slug,
+                              },
+                            },
+                          });
                         }}
                       >
                         <Image
