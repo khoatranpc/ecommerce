@@ -134,6 +134,7 @@ const CartItem = React.memo(
                               ]
                             }
                             className="!w-6"
+                            alt=""
                           />
                           {option.label}
                         </div>
@@ -197,6 +198,7 @@ const CartItem = React.memo(
     );
   }
 );
+CartItem.displayName = "CartItem";
 const CartScreen = () => {
   const carts = useGetCarts();
   const [cartsState, setCartsState] = useState<IObj[]>([]);
@@ -232,7 +234,7 @@ const CartScreen = () => {
       })
     );
   }, []);
-  const calculateTotal: Number = useMemo(() => {
+  const calculateTotal: number = useMemo(() => {
     return cartsState.reduce((total, cart) => {
       return (
         total +
