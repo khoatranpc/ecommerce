@@ -411,3 +411,54 @@ export const queryCreateAPost = `#graphql
         }
     }
 `;
+
+export const queryInsertToCart = `#graphql
+    mutation InsertToCart($input: InsertToCartInput){
+        insertToCart(input: $input) {
+            _id
+        }
+    }
+`;
+
+export const queryGetCarts = `#graphql
+    query queryGetCarts($input: GetCartsInput){
+        getCarts(input: $input) {
+            _id
+            user {
+                _id
+                name
+            }
+            items {
+                _id
+                product {
+                    _id
+                    images
+                    variants {
+                        _id
+                        name
+                        attributes {
+                            key
+                            value
+                        }
+                        imageIndex
+                        status
+                }
+                }
+                variant
+                quantity
+                price
+                createdAt
+                updatedAt
+            }
+            totalAmount
+            status
+            shop {
+                _id
+                name
+                logo
+            }
+            createdAt
+            updatedAt
+        }
+    }
+`;

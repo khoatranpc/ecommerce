@@ -1,31 +1,28 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Card,
-  Image,
   Rate,
   Space,
   Typography,
   InputNumber,
-  Tabs,
   Divider,
-  Tag,
-  Carousel,
   Descriptions,
 } from "antd";
-import {
-  HeartOutlined,
-  ShoppingCartOutlined,
-  ShopOutlined,
-  MessageOutlined,
-} from "@ant-design/icons";
-import { useGetProductDetailBySlug } from "@/src/utils/hooks";
+import { HeartOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import { useGetProductDetailBySlug, useInsertToCart } from "@/src/utils/hooks";
 import ProductDetailLoading from "./ProductDetailLoading";
-import { queryGetProductBySlug } from "@/src/utils/graphql-queries";
+import {
+  queryGetProductBySlug,
+  queryInsertToCart,
+} from "@/src/utils/graphql-queries";
 import { useParams } from "next/navigation";
 import { IObj } from "@/src/types";
 import ProductPost from "./ProductPost";
+import ProductImages from "./components/ProductImages";
+import ProductVariants from "./components/ProductVariants";
+import ShopInfo from "./components/ShopInfo";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -72,9 +69,8 @@ const mockProduct = {
 };
 
 const ProductSlug = () => {
-  const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const carouselRef = useRef<any>(null);
+  const insertToCart = useInsertToCart();
   const currentProduct = useGetProductDetailBySlug();
   const getDataCurrentProduct =
     (currentProduct.data?.getProductBySlug as IObj) ?? {};
@@ -151,6 +147,27 @@ const ProductSlug = () => {
     );
     return getLastVariantSelect;
   }, [keysSelected]);
+  const getVariant = useMemo(() => {
+    const variantId = lastIndexVariantSelected || selectedVariantId;
+    const currentVariant = getVariants.find((v) => v._id === variantId);
+    return currentVariant;
+  }, [lastIndexVariantSelected, selectedVariantId, getVariants]);
+  const handleAddToCart = () => {
+    if (getVariant) {
+      const selectedProduct = {
+        product: getDataCurrentProduct?._id,
+        quantity: quantity,
+        variant: getVariant?._id,
+        shop: getDataCurrentProduct?.shop?._id,
+      };
+      insertToCart.query({
+        query: queryInsertToCart,
+        variables: {
+          input: selectedProduct,
+        },
+      });
+    }
+  };
   useEffect(() => {
     currentProduct.query({
       query: queryGetProductBySlug,
@@ -161,74 +178,27 @@ const ProductSlug = () => {
       },
     });
   }, [params.slug]);
+  useEffect(() => {
+    if (getVariant) {
+      setQuantity(1);
+    }
+  }, [getVariant]);
   return !currentProduct.isFetched || currentProduct.isPending ? (
     <ProductDetailLoading />
   ) : (
     <div className="grid grid-cols-12 gap-8" key={params.slug as string}>
       <div className="col-span-5">
         <div className="sticky top-24">
-          <Card className="overflow-hidden">
-            <Carousel
-              ref={carouselRef}
-              slidesToShow={1}
-              slidesToScroll={1}
-              draggable
-              infinite
-              afterChange={(slide) => {
-                setSelectedImage(slide);
-              }}
-            >
-              {(getDataCurrentProduct.images as string[])?.map(
-                (img: string, idx: number) => (
-                  <Image
-                    src={img}
-                    alt={`${mockProduct.name} ${idx + 1}`}
-                    className="w-20 h-20 object-cover !select-none"
-                    preview={false}
-                    fallback="/static/fallback-img.png"
-                  />
-                )
-              )}
-            </Carousel>
-            <Carousel
-              className="mt-4"
-              dots={false}
-              slidesToShow={5}
-              infinite={false}
-            >
-              {(getDataCurrentProduct.images as string[])?.map(
-                (img: string, idx: number) => (
-                  <div
-                    key={idx}
-                    className={`cursor-pointer border-2 rounded overflow-hidden ${
-                      selectedImage === idx
-                        ? "border-[var(--primary)]"
-                        : "border-transparent"
-                    }`}
-                    onClick={() => {
-                      setSelectedImage(idx);
-                      carouselRef.current?.goTo(idx);
-                    }}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${getDataCurrentProduct.name} ${idx + 1}`}
-                      className="!w-14object-cover !select-none"
-                      preview={false}
-                      fallback="/static/fallback-img.png"
-                    />
-                  </div>
-                )
-              )}
-            </Carousel>
-          </Card>
+          <ProductImages
+            images={getDataCurrentProduct.images as string[]}
+            productName={getDataCurrentProduct.name}
+          />
         </div>
       </div>
 
       <div className="col-span-7">
         <Card>
           <Title level={3}>{getDataCurrentProduct?.name}</Title>
-
           <Space className="my-4">
             <Rate disabled defaultValue={mockProduct.rating} />
             <Text type="secondary">
@@ -237,152 +207,27 @@ const ProductSlug = () => {
             <Divider type="vertical" />
             <Text type="secondary">{mockProduct.sold} đã bán</Text>
           </Space>
-
           <div className="bg-gray-50 p-6 rounded-lg my-6">
             <p className="text-4xl text-red-500 font-bold">
-              {getDataCurrentProduct?.price?.toLocaleString()}₫
+              {getVariant?.price?.toLocaleString() ??
+                getDataCurrentProduct?.price?.toLocaleString()}
+              ₫
             </p>
             <div className="flex items-center gap-2 mt-2">
               <Text delete className="text-gray-500"></Text>
             </div>
           </div>
           <div className="space-y-4">
-            {Object.keys(mapKeyOptions).length > 0 ? (
-              <div className="space-y-6">
-                {Object.keys(mapKeyOptions).map(
-                  (key: keyof typeof mapKeyOptions) => {
-                    const uniqueValues: any = Array.from(
-                      new Set(
-                        mapKeyOptions[key].map((opt: IObj) => {
-                          return opt.attribute;
-                        })
-                      )
-                    );
-                    return (
-                      <div key={key} className="grid grid-cols-5">
-                        <Text
-                          strong
-                          className="min-w-[100px] capitalize !text-[0.8rem] col-span-1"
-                        >
-                          {key}:
-                        </Text>
-                        <div className="col-span-4">
-                          <Space size={[8, 16]} wrap>
-                            {uniqueValues.map((val: string, idx: number) => {
-                              const checkCurrentAttri = variantsHasKey.filter(
-                                (variant) => {
-                                  return (variant.attributes as IObj[]).find(
-                                    (attri) => {
-                                      return (
-                                        String(attri.key)
-                                          .toLowerCase()
-                                          .trim() === key &&
-                                        String(attri.value)
-                                          .toLowerCase()
-                                          .trim() === val
-                                      );
-                                    }
-                                  );
-                                }
-                              );
-                              const isSelected = keysSelected.find((item) => {
-                                return item.key === key && item.value === val;
-                              });
-                              return (
-                                <Button
-                                  key={idx}
-                                  size="large"
-                                  type={isSelected ? "primary" : "default"}
-                                  className={`min-w-[80px] capitalize hover:!text-[var(--primary)] hover:!border-[var(--primary)]`}
-                                  disabled={
-                                    isSelected
-                                      ? false
-                                      : !!keysSelected.length &&
-                                        !checkCurrentAttri.length
-                                  }
-                                  onClick={() => {
-                                    setKeysSelected((prev) => {
-                                      const existIndexKey = prev.findIndex(
-                                        (attribute) => {
-                                          return (
-                                            attribute.key === key &&
-                                            attribute.value === val
-                                          );
-                                        }
-                                      );
-                                      if (existIndexKey > -1)
-                                        prev.splice(existIndexKey, 1);
-                                      else
-                                        prev.push({
-                                          key,
-                                          value: val,
-                                        });
-                                      return [...prev];
-                                    });
-                                  }}
-                                >
-                                  {val}
-                                </Button>
-                              );
-                            })}
-                          </Space>
-                        </div>
-                      </div>
-                    );
-                  }
-                )}
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="grid grid-cols-5">
-                  <Text
-                    strong
-                    className="min-w-[100px] capitalize !text-[0.8rem] col-span-1"
-                  >
-                    Loại:
-                  </Text>
-                  <div className="col-span-4 flex flex-wrap gap-4">
-                    {getVariants.map((variant) => {
-                      return (
-                        <Button
-                          key={variant._id}
-                          size="large"
-                          disabled={
-                            !!selectedVariantId &&
-                            selectedVariantId !== variant._id
-                          }
-                          type={
-                            selectedVariantId === variant._id
-                              ? "primary"
-                              : "default"
-                          }
-                          className={`min-w-[80px] capitalize hover:!text-[var(--primary)] hover:!border-[var(--primary)]`}
-                          onClick={() => {
-                            setSelectedVariantId((prev) => {
-                              if (prev === variant._id) {
-                                return "";
-                              }
-                              return variant._id;
-                            });
-                          }}
-                        >
-                          <Image
-                            src={
-                              (getDataCurrentProduct.images as string[])?.[
-                                variant.imageIndex as number
-                              ]
-                            }
-                            fallback="/static/fallback-image.png"
-                            className="!w-4"
-                          />
-                          <span>{variant.name}</span>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
+            <ProductVariants
+              mapKeyOptions={mapKeyOptions}
+              variantsHasKey={variantsHasKey}
+              keysSelected={keysSelected}
+              setKeysSelected={setKeysSelected}
+              getVariants={getVariants}
+              selectedVariantId={selectedVariantId}
+              setSelectedVariantId={setSelectedVariantId}
+              productImages={getDataCurrentProduct.images as string[]}
+            />
           </div>
           <div className="space-y-6 mt-4">
             <div className="prose max-w-none">
@@ -391,8 +236,11 @@ const ProductSlug = () => {
             <div className="flex items-center gap-4">
               <Text strong>Số lượng:</Text>
               <InputNumber
+                disabled={
+                  lastIndexVariantSelected || selectedVariantId ? false : true
+                }
                 min={1}
-                max={10}
+                max={getVariant?.stock || getDataCurrentProduct?.stock}
                 value={quantity}
                 onChange={(value) => setQuantity(value || 1)}
               />
@@ -407,6 +255,8 @@ const ProductSlug = () => {
                 disabled={
                   lastIndexVariantSelected || selectedVariantId ? false : true
                 }
+                loading={insertToCart.isPending}
+                onClick={handleAddToCart}
               >
                 Thêm vào giỏ hàng
               </Button>
@@ -417,24 +267,7 @@ const ProductSlug = () => {
           </div>
 
           <Divider />
-          <div className="flex items-center gap-4">
-            <Image
-              src={getDataCurrentProduct?.shop?.logo}
-              alt={getDataCurrentProduct?.shop?.name}
-              className="!w-16 !h-16 object-cover rounded-full"
-            />
-            <div className="flex-1">
-              <Title level={5}>{getDataCurrentProduct?.shop?.name}</Title>
-              <Space split={<Divider type="vertical" />}>
-                <Text>{mockProduct.shop.products} sản phẩm</Text>
-                <Text>{mockProduct.shop.followers} người theo dõi</Text>
-              </Space>
-            </div>
-            <Space>
-              <Button icon={<ShopOutlined />}>Xem shop</Button>
-              <Button icon={<MessageOutlined />}>Chat ngay</Button>
-            </Space>
-          </div>
+          <ShopInfo shop={getDataCurrentProduct?.shop} />
         </Card>
       </div>
       <div className="col-span-12">
@@ -448,7 +281,10 @@ const ProductSlug = () => {
                 <div className="flex gap-2">
                   {(getDataCurrentProduct?.categories as IObj[])?.map((cat) => {
                     return (
-                      <span className="text-blue-500 cursor-pointer hover:underline">
+                      <span
+                        className="text-blue-500 cursor-pointer hover:underline"
+                        key={cat._id}
+                      >
                         {cat?.name}
                       </span>
                     );

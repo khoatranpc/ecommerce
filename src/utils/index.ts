@@ -24,3 +24,8 @@ export const removeLocalStorage = (key: string) => {
 export const generateSKU = (prefix = "SKU") => {
   return `${prefix}-${uuidv4().split("-")[0].toUpperCase()}`;
 };
+
+export const keyLocalStorage = {
+  access_token: "access_token",
+  products_to_checkout: "products_to_checkout",
+};

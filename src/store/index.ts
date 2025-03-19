@@ -11,6 +11,7 @@ import {
   updateProduct,
 } from "./reducers/product";
 import { createAPost, postDetail } from "./reducers/post";
+import { carts, insertToCart } from "./reducers/cart";
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,8 @@ export const store = configureStore({
     updateProduct: updateProduct.reducer,
     postDetail: postDetail.reducer,
     createAPost: createAPost.reducer,
+    insertToCart: insertToCart.reducer,
+    carts: carts.reducer,
   },
 });
 

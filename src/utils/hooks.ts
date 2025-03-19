@@ -36,6 +36,11 @@ import {
   queryCreateAPost,
   queryGetOnePost,
 } from "../store/reducers/post";
+import {
+  clearInsertToCart,
+  queryGetCarts,
+  queryInsertToCart,
+} from "../store/reducers/cart";
 interface window {
   localStorage: Storage;
 }
@@ -287,3 +292,11 @@ export const useQuickSearchProducts = createHook(
   "quickSearchProducts",
   queryProducts
 );
+
+export const useInsertToCart = createHook(
+  "insertToCart",
+  queryInsertToCart,
+  clearInsertToCart
+);
+
+export const useGetCarts = createHook("carts", queryGetCarts);

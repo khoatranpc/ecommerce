@@ -1,20 +1,10 @@
-"use client";
-import {
-  Badge,
-  Button,
-  Dropdown,
-  Image,
-  Layout,
-  Space,
-  Tooltip,
-  Typography,
-} from "antd";
-import { Header, Content, Footer } from "antd/es/layout/layout";
-import { useRouter } from "next/navigation";
+"use client"
+import { Badge, Button, Dropdown, Image, Layout, Space, Typography } from "antd"
+import { Header, Content, Footer } from "antd/es/layout/layout"
+import { useRouter } from "next/navigation"
 import {
   BellOutlined,
   HeartOutlined,
-  SearchOutlined,
   ShoppingCartOutlined,
   UserOutlined,
   DownloadOutlined,
@@ -22,28 +12,28 @@ import {
   FacebookOutlined,
   InstagramOutlined,
   YoutubeOutlined,
-} from "@ant-design/icons";
-import React, { useEffect } from "react";
-import { useCheckCurrentRoleUser, useCurrentUser } from "../utils/hooks";
-import { IObj } from "../types";
-import { Role } from "../types/enum";
-import QuickSearch from "../components/customer/QuickSearch";
-import ChatBox from "../components/customer/ChatBox";
+} from "@ant-design/icons"
+import React from "react"
+import { useCheckCurrentRoleUser, useCurrentUser } from "../utils/hooks"
+import { IObj } from "../types"
+import { Role } from "../types/enum"
+import QuickSearch from "../components/customer/QuickSearch"
+import ChatBox from "../components/customer/ChatBox"
 
-const { Title, Text } = Typography;
+const { Title, Text } = Typography
 
 interface Props {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 const CustomerLayout = (props: Props) => {
-  useCheckCurrentRoleUser(Role.customer);
-  const currentUser = useCurrentUser();
-  const getCurrentUser = currentUser.data?.getCurrentUser as IObj;
-  const router = useRouter();
+  useCheckCurrentRoleUser(Role.customer)
+  const currentUser = useCurrentUser()
+  const getCurrentUser = currentUser.data?.getCurrentUser as IObj
+  const router = useRouter()
   return (
     <Layout className="min-h-screen">
-      <Header className="!bg-white backdrop-blur-sm sticky top-0 px-0 w-full z-50 !h-fit !p-0">
+      <Header className="!bg-white backdrop-blur-sm sticky top-0 px-0 w-full z-9999 !h-fit !p-0">
         <div className="bg-[var(--primary)]">
           <div className="max-w-7xl mx-auto px-4 py-1.5">
             <div className="flex justify-end items-center gap-8 text-white/90 text-sm">
@@ -62,7 +52,12 @@ const CustomerLayout = (props: Props) => {
         <div className="border-b border-gray-100 shadow-sm">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center h-16">
-              <div className="flex-shrink-0 mr-12 flex items-center gap-2">
+              <div
+                className="flex-shrink-0 mr-12 flex cursor-pointer items-center gap-2"
+                onClick={() => {
+                  router.push("/shopping");
+                }}
+              >
                 <Image
                   className="!w-14"
                   src="/static/shopping-mall.png"
@@ -79,17 +74,22 @@ const CustomerLayout = (props: Props) => {
               <div className="flex items-center gap-6 ml-8">
                 <Badge count={3} color="#4F46E5">
                   <button className="group p-2 hover:bg-gray-50 rounded-full transition-all">
-                    <BellOutlined className="text-xl text-gray-600 group-hover:text-indigo-600 transition-colors" />
+                    <BellOutlined className="text-xl text-gray-600 cursor-pointer group-hover:text-indigo-600 transition-colors" />
                   </button>
                 </Badge>
                 <Badge count={2} color="#4F46E5">
                   <button className="group p-2 hover:bg-gray-50 rounded-full transition-all">
-                    <HeartOutlined className="text-xl text-gray-600 group-hover:text-indigo-600 transition-colors" />
+                    <HeartOutlined className="text-xl text-gray-600 cursor-pointer group-hover:text-indigo-600 transition-colors" />
                   </button>
                 </Badge>
                 <Badge count={5} color="#4F46E5">
-                  <button className="group p-2 hover:bg-gray-50 rounded-full transition-all">
-                    <ShoppingCartOutlined className="text-xl text-gray-600 group-hover:text-indigo-600 transition-colors" />
+                  <button
+                    className="group p-2 hover:bg-gray-50 rounded-full transition-all"
+                    onClick={() => {
+                      router.push("/cart")
+                    }}
+                  >
+                    <ShoppingCartOutlined className="text-xl text-gray-600 cursor-pointer group-hover:text-indigo-600 transition-colors" />
                   </button>
                 </Badge>
                 {getCurrentUser ? (
@@ -110,8 +110,8 @@ const CustomerLayout = (props: Props) => {
                           key: "Logout",
                           label: "Đăng xuất",
                           onClick() {
-                            localStorage.removeItem("access_token");
-                            window.location.assign("/shopping");
+                            localStorage.removeItem("access_token")
+                            window.location.assign("/shopping")
                           },
                         },
                       ],
@@ -135,7 +135,7 @@ const CustomerLayout = (props: Props) => {
                     size="large"
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 border-none hover:opacity-90 ml-2"
                     onClick={() => {
-                      router.push("/login");
+                      router.push("/login")
                     }}
                   >
                     <span className="hidden sm:inline ml-1">{"Đăng nhập"}</span>
@@ -220,7 +220,7 @@ const CustomerLayout = (props: Props) => {
         </div>
       </Footer>
     </Layout>
-  );
-};
+  )
+}
 
-export default CustomerLayout;
+export default CustomerLayout
